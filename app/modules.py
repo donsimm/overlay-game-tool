@@ -9,7 +9,7 @@ MODULE_TYPES = {
         "fields": [
             {"key": "title", "label": "Titel", "kind": "text", "default": "Herzlich Willkommen"},
             {"key": "subtitle", "label": "Untertitel", "kind": "text", "default": "Der Stream geht gleich los"},
-            {"key": "accent", "label": "Akzentfarbe", "kind": "color", "default": "#ff4d6d"},
+            {"key": "accent", "label": "Leuchtfarbe", "kind": "color", "default": "#ff4d6d"},
         ],
     },
     "chat": {"label": "Chat", "description": "Chatnachrichten von Twitch und YouTube", "size": (500, 800)},
