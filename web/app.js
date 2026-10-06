@@ -82,7 +82,7 @@ function moduleCard(m) {
       h("button", {textContent: "Kopieren", onclick: guard(async () => {
         await navigator.clipboard.writeText(url); notice("URL kopiert.");
       })}),
-      type?.elements?.length ? h("a", {href: `/editor/${m.id}`, target: "_blank", textContent: "Editor öffnen"}) : null,
+      h("a", {href: `/editor/${m.id}`, target: "_blank", textContent: "Editor öffnen"}),
       h("a", {href: url + "?debug=1", target: "_blank", textContent: "Vorschau"})),
     h("p", {className: "dim", textContent: `In OBS Breite ${m.width} und Höhe ${m.height} einstellen.`}),
     inputs.length ? h("div", {className: "row"}, ...inputs.map(i => i.row)) : null,

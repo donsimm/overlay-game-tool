@@ -1,5 +1,6 @@
 import os
 import re
+from typing import Any
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -9,7 +10,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Redirect
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import modules, oauth, store
+from . import assets, modules, oauth, store
 
 WEB = Path(__file__).resolve().parent.parent / "web"
 PORT = int(os.environ.get("OVERLAY_PORT", "8080"))
@@ -112,6 +113,7 @@ class ModulePatch(BaseModel):
     enabled: bool | None = None
     settings: dict[str, str] | None = None
     layout: dict[str, dict[str, float | bool | str]] | None = None
+    items: list[dict[str, Any]] | None = None
 
 
 @app.get("/api/module-types")
@@ -119,6 +121,58 @@ async def module_types():
     return [{"type": k, "label": v["label"], "description": v["description"], "fields": v.get("fields", []),
              "elements": v.get("elements", [])}
             for k, v in modules.MODULE_TYPES.items()]
+
+
+@app.get("/api/meta")
+async def meta():
+    """Gemeinsame Angaben für den Editor (gelten für alle Module)."""
+    return {"item_defaults": modules.ITEM_LAYOUT_DEFAULTS, "item_animations": modules.ITEM_ANIMATIONS,
+            "text_styles": modules.TEXT_STYLES, "max_items": modules.MAX_ITEMS}
+
+
+# ---------- Bilder-Bibliothek ----------
+
+@app.get("/api/assets")
+async def list_assets():
+    return store.load()["assets"]
+
+
+@app.post("/api/assets", status_code=201)
+async def upload_asset(request: Request, name: str = "bild"):
+    """Datei im Body (roh). Erlaubt: png, jpg, gif, webp, svg, webm; maximal 25 MB."""
+    base = os.path.basename(name.replace("\\", "/"))
+    stem, _, ext = base.rpartition(".")
+    ext = ext.lower()
+    if ext not in assets.TYPES or not stem:
+        raise HTTPException(400, "Dateityp nicht erlaubt (png, jpg, gif, webp, svg, webm)")
+    buf = bytearray()
+    async for chunk in request.stream():
+        buf += chunk
+        if len(buf) > assets.MAX_BYTES:
+            raise HTTPException(413, "Datei zu gross (maximal 25 MB)")
+    if not assets.looks_like(ext, bytes(buf[:512])):
+        raise HTTPException(400, "Dateiinhalt passt nicht zur Endung")
+    return assets.add(stem[:60], ext, bytes(buf))
+
+
+@app.delete("/api/assets/{aid}", status_code=204)
+async def delete_asset(aid: str):
+    if any(it.get("asset") == aid for m in store.load()["modules"] for it in m.get("items", [])):
+        raise HTTPException(409, "Das Bild wird noch in einem Modul verwendet")
+    assets.remove(aid)
+
+
+@app.get("/media/{file}")
+async def media(file: str):
+    path = assets.ASSET_DIR / file
+    if not assets.FILE_RE.fullmatch(file) or not path.is_file():
+        raise HTTPException(404, "Nicht gefunden")
+    return FileResponse(path, media_type=assets.TYPES[file.rsplit(".", 1)[1]][0], headers={
+        # sandbox: auch eine direkt geöffnete SVG kann keine Skripte ausführen
+        "Content-Security-Policy": "sandbox",
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "public, max-age=31536000, immutable",
+    })
 
 
 @app.get("/api/modules")
@@ -162,11 +216,19 @@ async def patch_module(mid: str, body: ModulePatch):
                 raise HTTPException(400, f"{k}: ungültige Farbe")
             clean[k] = v
         changes["settings"] = clean
-    if "layout" in changes:
-        try:
-            changes["layout"] = modules.validate_layout(mod["type"], changes["layout"])
-        except ValueError as e:
-            raise HTTPException(400, str(e))
+    try:
+        if "items" in changes:
+            changes["items"] = modules.validate_items(changes["items"], store.load()["assets"])
+        if "layout" in changes or "items" in changes:
+            items = changes.get("items", mod.get("items", []))
+            if "layout" in changes:
+                layout = changes["layout"]
+            else:  # nur Ebenen geändert: Layout gelöschter Ebenen entfernen
+                known = modules.element_specs(mod["type"], items)
+                layout = {k: v for k, v in mod.get("layout", {}).items() if k in known}
+            changes["layout"] = modules.validate_layout(mod["type"], layout, items)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
     mod.update(changes)
     store.save(data)
     await hub.broadcast(mid, {"type": "module-updated"})  # offene Overlays (OBS) laden live neu
@@ -196,13 +258,20 @@ async def editor(mid: str):
     return FileResponse(WEB / "editor.html")
 
 
+def _items_with_files(mod: dict) -> list:
+    """Bild-Ebenen speichern nur die Asset-ID; für die Anzeige kommt die Dateiname dazu."""
+    files = {a["id"]: a["file"] for a in store.load()["assets"]}
+    return [{**it, "file": files.get(it.get("asset"))} if it["kind"] == "image" else it
+            for it in mod.get("items", [])]
+
+
 @app.get("/api/overlay/{mid}")
 async def overlay_config(mid: str):
     mod = next((m for m in store.load()["modules"] if m["id"] == mid), None)
     if not mod:
         raise HTTPException(404, "Modul nicht gefunden")
     return {**mod, "settings": {**modules.defaults(mod["type"]), **mod["settings"]},
-            "layout": modules.merged_layout(mod)}
+            "items": _items_with_files(mod), "layout": modules.merged_layout(mod)}
 
 
 class Hub:

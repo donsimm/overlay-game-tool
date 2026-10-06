@@ -1,0 +1,24 @@
+/* Gemeinsam für alle Overlays/Module: Ebenen-Wrapper, Animationen, Text- und Bildstil */
+.el{position:absolute;pointer-events:auto;transform:translate(-50%,-50%) rotate(var(--r,0deg)) scale(var(--s,1))}
+.el .a{position:relative}
+.noanim,.noanim *{animation:none!important}
+
+/* Ruhige, dezente Bewegungen. Art kommt per data-anim, Stärke per --i (0 = keine Bewegung). */
+[data-anim="float"] .a{animation:float 6s ease-in-out infinite}
+[data-anim="breathe"] .a{animation:breathe 5s ease-in-out infinite}
+[data-anim="sway"] .a{animation:sway 7s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(calc(-.8vh*var(--i,1)))}50%{transform:translateY(calc(.8vh*var(--i,1)))}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(calc(1 + .035*var(--i,1)))}}
+@keyframes sway{0%,100%{transform:rotate(calc(-1.2deg*var(--i,1)))}50%{transform:rotate(calc(1.2deg*var(--i,1)))}}
+
+/* Schreibmaschine: Cursor (Bewegung/Sichtbarkeit steuert _typing.js) */
+.cursor{position:absolute;left:0;top:0;bottom:0;pointer-events:none}
+.cursor i{display:block;width:.07em;height:80%;margin:5% 0 0 .04em;background:#fff;box-shadow:0 0 0 .04em #000;animation:blink 1.1s steps(1) infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* Frei hinzugefügte Ebenen */
+.txt{white-space:pre;text-align:center;font-weight:800;line-height:1.15;color:var(--c,#fff);font-size:calc(var(--sz,7)*1vh)}
+.txt-comic{text-shadow:0.067em 0.000em 0 #000,0.065em 0.017em 0 #000,0.058em 0.033em 0 #000,0.047em 0.047em 0 #000,0.034em 0.058em 0 #000,0.017em 0.065em 0 #000,0.000em 0.067em 0 #000,-0.017em 0.065em 0 #000,-0.033em 0.058em 0 #000,-0.047em 0.047em 0 #000,-0.058em 0.033em 0 #000,-0.065em 0.017em 0 #000,-0.067em 0.000em 0 #000,-0.065em -0.017em 0 #000,-0.058em -0.033em 0 #000,-0.047em -0.047em 0 #000,-0.034em -0.058em 0 #000,-0.017em -0.065em 0 #000,-0.000em -0.067em 0 #000,0.017em -0.065em 0 #000,0.034em -0.058em 0 #000,0.047em -0.047em 0 #000,0.058em -0.034em 0 #000,0.065em -0.017em 0 #000;
+  filter:drop-shadow(.078em .089em 0 rgba(0,0,0,.4)) drop-shadow(.044em .067em .133em rgba(0,0,0,.25))}
+.txt-plain{text-shadow:0 .05em .15em rgba(0,0,0,.55)}
+.pic{display:block;height:calc(var(--sz,25)*1vh);width:auto;max-width:none}

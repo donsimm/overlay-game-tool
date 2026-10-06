@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <title>Overlay</title>
 <link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/overlays/_base.css">
 <style>
 html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-family:"Be Vietnam Pro",system-ui,sans-serif;color:#fff}
 #root{position:absolute;inset:0}
-.el{position:absolute;transform:translate(-50%,-50%) rotate(var(--r,0deg)) scale(var(--s,1))}
-.noanim,.noanim *{animation:none!important}
+
 #debug{position:absolute;left:0;top:0;font-size:14px;background:rgba(0,0,0,.5);padding:.4rem .6rem}
 </style>
 </head>
@@ -16,7 +16,10 @@ html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-famil
 <div id="root"></div>
 <div id="debug" hidden></div>
 <script type="module">
-// Lädt pro Modul-Typ /overlays/<typ>.js (exportiert render(root, modul)).
+import {applyLayout} from "/overlays/_layout.js";
+import {renderItems} from "/overlays/_items.js";
+// Lädt pro Modul-Typ /overlays/<typ>.js (exportiert render(root, modul)). Frei hinzugefügte Ebenen
+// (Text/Bild) funktionieren in jedem Modul und werden hier zusätzlich gezeichnet.
 // Keine Timer im Leerlauf; WebSocket-Reconnect mit wachsendem Abstand.
 // Ändert sich das Modul im Editor, lädt das Overlay live neu (auch in OBS).
 const id = location.pathname.split("/").pop();
@@ -36,7 +39,9 @@ async function load(first) {
     if (edit) window.__mod = mod;
   }
   view.render?.(root, mod);
-  if (first && edit) (await import("/overlays/_edit.js")).start(root, mod.layout);
+  renderItems(root, mod.items);
+  applyLayout(root, mod.layout, edit);
+  if (first && edit) (await import("/overlays/_edit.js")).start(root, mod);
 }
 let delay = 1000;
 function connect() {

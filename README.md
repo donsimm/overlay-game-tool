@@ -29,6 +29,10 @@ Unter «Module» ein Modul erstellen, die URL kopieren und in OBS als Browserque
 Bei Modulen mit verschiebbaren Elementen steht «Editor öffnen». Die Vorschau ist die echte Overlay-Seite.
 Elemente ziehen, Punkt an der Ecke = Grösse, Panel = X/Y, Grösse, Drehung, Animation (an/aus, Art, Stärke).
 Ebenen: Reihenfolge per Ziehen oder ▲▼, Sichtbarkeit per Häkchen.
+
+**Eigene Texte und Bilder (in jedem Modul):** im Editor «+ Text» bzw. «+ Bild». Bilder (png, jpg, gif, webp, svg, webm, max. 25 MB)
+liegen in der Bibliothek (`data/assets/`) und lassen sich mehrfach verwenden. Das Modul «Freies Overlay» ist eine leere Fläche
+nur mit solchen Ebenen. Textanimationen: Schweben, Atmen, Wiegen, Schreibmaschine, Schreibmaschine mit Löschen.
 Speichern (Ctrl+S) aktualisiert offene Overlays in OBS sofort, ohne Neuladen.
 
 ## Ressourcen und Sicherheit

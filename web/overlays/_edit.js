@@ -1,9 +1,10 @@
 // Bearbeitungsschicht (nur mit ?edit=1 geladen): Elemente ziehen, an der Ecke skalieren.
 // Kommuniziert per postMessage mit editor.html (gleicher Ursprung).
 import {applyLayout} from "/overlays/_layout.js";
+import {renderItems} from "/overlays/_items.js";
 
-export function start(root, initialLayout) {
-  let layout = structuredClone(initialLayout);
+export function start(root, mod) {
+  let layout = structuredClone(mod.layout), items = JSON.stringify(mod.items);
   let selected = null;
   const parentWin = window.parent;
   const send = msg => parentWin.postMessage(msg, location.origin);
@@ -69,7 +70,13 @@ export function start(root, initialLayout) {
 
   addEventListener("message", e => {
     if (e.source !== parentWin || e.origin !== location.origin) return;
-    if (e.data?.type === "layout") { layout = e.data.layout; applyLayout(root, layout, true); updateBox(); }
+    if (e.data?.type === "state") {   // Ebenen (Text/Bild) und Layout vom Editor
+      const newItems = JSON.stringify(e.data.items);
+      layout = e.data.layout;
+      if (newItems !== items) { items = newItems; renderItems(root, e.data.items); }
+      if (selected && !wrapOf(selected)) select(null);
+      applyLayout(root, layout, true); updateBox();
+    }
     if (e.data?.type === "select") select(e.data.key, false);
   });
   addEventListener("keydown", e => {

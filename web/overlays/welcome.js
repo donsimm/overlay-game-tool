@@ -1,4 +1,4 @@
-import {el, makeElement, applyLayout} from "/overlays/_layout.js";
+import {el, makeElement, setTyping, applyLayout} from "/overlays/_layout.js";
 
 const css = document.createElement("link");
 css.rel = "stylesheet"; css.href = "/overlays/welcome.css";
@@ -15,13 +15,14 @@ export function render(root, mod) {
   const heart = el("img"); heart.src = "/assets/heart.webp"; heart.alt = "";
   makeElement(wrap, "heart", el("div", "glow"), inA(heart));
 
-  makeElement(wrap, "title", inA(el("h1", "", s.title)));
+  const h1 = el("h1", "", s.title);
+  setTyping(makeElement(wrap, "title", inA(h1)), s.title, h1);
 
   const sub = el("p", "", s.subtitle);
   const dots = el("span", "dots");
   dots.append(...["", "", ""].map(() => el("i", "", ".")));
   sub.append(dots);
-  makeElement(wrap, "subtitle", inA(sub));
+  setTyping(makeElement(wrap, "subtitle", inA(sub)), s.subtitle + "...", sub);
 
   root.replaceChildren(wrap);
   applyLayout(root, mod.layout);

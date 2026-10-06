@@ -1,14 +1,37 @@
 """Modul-Typen und Verwaltung der angelegten Overlay-Module."""
+import re
 import secrets
 
 # Ruhige, dezente Textanimationen (Stärke per «intensity» regelbar)
-TEXT_ANIMATIONS = [
+MOTION_ANIMATIONS = [
     {"key": "float", "label": "Schweben"},
     {"key": "breathe", "label": "Atmen"},
     {"key": "sway", "label": "Wiegen"},
 ]
+# Zwei Schreibmaschinen-Effekte (nur Text); «Stärke» regelt hier das Tempo
+TEXT_ANIMATIONS = MOTION_ANIMATIONS + [
+    {"key": "typewriter", "label": "Schreibmaschine"},
+    {"key": "typewriter_erase", "label": "Schreibmaschine mit Löschen"},
+]
+ITEM_ANIMATIONS = {"text": TEXT_ANIMATIONS, "image": MOTION_ANIMATIONS}
+TEXT_STYLES = [{"key": "comic", "label": "Comic (Rand + Schatten)"},
+               {"key": "plain", "label": "Schlicht (weicher Schatten)"},
+               {"key": "none", "label": "Ohne"}]
+# Layout-Standard für frei hinzugefügte Ebenen (Texte/Bilder)
+ITEM_LAYOUT_DEFAULTS = {"x": 0, "y": 0, "scale": 1, "rotate": 0, "anim": False, "visible": True,
+                        "z": 0, "intensity": 1, "animation": "float"}
+MAX_ITEMS = 50
+COLOR_RE = re.compile(r"#[0-9a-fA-F]{6}")
+ITEM_ID_RE = re.compile(r"i_[a-z0-9]{6,12}")
 
 MODULE_TYPES = {
+    "custom": {
+        "label": "Freies Overlay",
+        "description": "Leere Fläche: eigene Bilder und Texte frei anordnen",
+        "size": (1920, 1080),
+        "elements": [],
+        "fields": [],
+    },
     "welcome": {
         "label": "Willkommen",
         "description": "«Herzlich Willkommen – der Stream geht gleich los», leicht animiert",
@@ -50,27 +73,33 @@ LAYOUT_LIMITS = {"x": (-150, 150), "y": (-150, 150), "scale": (0.1, 6), "rotate"
 BOOL_FIELDS = ("anim", "visible")
 
 
-def layout_defaults(type_: str) -> dict:
-    return {e["key"]: dict(e["defaults"]) for e in MODULE_TYPES[type_].get("elements", [])}
+def element_specs(type_: str, items: list) -> dict:
+    """Alle verschiebbaren Elemente eines Moduls: eigene Elemente + frei hinzugefügte Ebenen."""
+    specs = {e["key"]: {"defaults": e["defaults"], "animations": e.get("animations", [])}
+             for e in MODULE_TYPES[type_].get("elements", [])}
+    for it in items:
+        specs[it["id"]] = {"defaults": ITEM_LAYOUT_DEFAULTS, "animations": ITEM_ANIMATIONS[it["kind"]]}
+    return specs
 
 
 def merged_layout(mod: dict) -> dict:
-    out = layout_defaults(mod["type"])
+    specs = element_specs(mod["type"], mod.get("items", []))
+    out = {k: dict(v["defaults"]) for k, v in specs.items()}
     for key, values in mod.get("layout", {}).items():
         if key in out:
             out[key].update(values)
     return out
 
 
-def validate_layout(type_: str, layout: dict) -> dict:
+def validate_layout(type_: str, layout: dict, items: list) -> dict:
     """Prüft und bereinigt ein vom Editor gesendetes Layout."""
-    elements = {e["key"]: e for e in MODULE_TYPES[type_].get("elements", [])}
+    specs = element_specs(type_, items)
     clean = {}
     for key, values in layout.items():
-        if key not in elements:
+        if key not in specs:
             raise ValueError(f"Unbekanntes Element: {key}")
-        item = dict(elements[key]["defaults"])
-        allowed = {a["key"] for a in elements[key].get("animations", [])}
+        item = dict(specs[key]["defaults"])
+        allowed = {a["key"] for a in specs[key]["animations"]}
         for field, value in values.items():
             if field in BOOL_FIELDS:
                 if not isinstance(value, bool):
@@ -91,6 +120,45 @@ def validate_layout(type_: str, layout: dict) -> dict:
     return clean
 
 
+def _num(value, label: str, lo: float, hi: float) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not lo <= value <= hi:
+        raise ValueError(f"{label} muss zwischen {lo} und {hi} liegen")
+    return round(float(value), 2)
+
+
+def validate_items(items: list, assets: list) -> list:
+    """Prüft die frei hinzugefügten Text-/Bild-Ebenen."""
+    if len(items) > MAX_ITEMS:
+        raise ValueError(f"Maximal {MAX_ITEMS} Ebenen")
+    asset_names = {a["id"]: a["name"] for a in assets}
+    seen, out = set(), []
+    for it in items:
+        iid, kind = it.get("id"), it.get("kind")
+        if not isinstance(iid, str) or not ITEM_ID_RE.fullmatch(iid) or iid in seen:
+            raise ValueError("Ungültige oder doppelte Ebenen-ID")
+        seen.add(iid)
+        if kind == "text":
+            text = it.get("text")
+            if not isinstance(text, str) or not 1 <= len(text) <= 200:
+                raise ValueError("Text: 1 bis 200 Zeichen")
+            color, style = it.get("color", "#ffffff"), it.get("style", "comic")
+            if not isinstance(color, str) or not COLOR_RE.fullmatch(color):
+                raise ValueError("Text: ungültige Farbe")
+            if style not in {s["key"] for s in TEXT_STYLES}:
+                raise ValueError("Text: unbekannter Stil")
+            out.append({"id": iid, "kind": "text", "name": text.strip()[:24] or "Text", "text": text,
+                        "size": _num(it.get("size", 7), "Text-Grösse", 1, 60), "color": color, "style": style})
+        elif kind == "image":
+            asset = it.get("asset")
+            if asset not in asset_names:
+                raise ValueError("Bild nicht in der Bibliothek")
+            out.append({"id": iid, "kind": "image", "name": asset_names[asset][:40], "asset": asset,
+                        "size": _num(it.get("size", 25), "Bild-Grösse", 1, 100)})
+        else:
+            raise ValueError("Unbekannte Ebenen-Art")
+    return out
+
+
 def new_module(type_: str, name: str) -> dict:
     if type_ not in MODULE_TYPES:
         raise ValueError(f"Unbekannter Modul-Typ: {type_}")
@@ -104,4 +172,5 @@ def new_module(type_: str, name: str) -> dict:
         "enabled": True,
         "settings": defaults(type_),
         "layout": {},
+        "items": [],
     }

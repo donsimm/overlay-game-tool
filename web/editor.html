@@ -30,6 +30,18 @@ body{height:100vh;display:flex;flex-direction:column}
 .bgs{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
 #state{margin-left:auto}
 .unsaved{color:#f0b429}
+.small{font-size:.78rem;margin-top:.3rem}
+#item-ctl{display:flex;flex-direction:column;gap:.6rem}
+#item-ctl[hidden]{display:none}
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px;width:min(760px,92vw);max-height:80vh}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+#lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.6rem;margin-top:.6rem}
+.tile{position:relative;border:1px solid var(--line);border-radius:8px;padding:.4rem;cursor:pointer;background:#111317;text-align:center}
+.tile:hover{border-color:var(--accent)}
+.tile .thumb{height:90px;display:flex;align-items:center;justify-content:center;background-image:linear-gradient(45deg,#2a2d33 25%,transparent 25%,transparent 75%,#2a2d33 75%),linear-gradient(45deg,#2a2d33 25%,transparent 25%,transparent 75%,#2a2d33 75%);background-size:16px 16px;background-position:0 0,8px 8px}
+.tile img,.tile video{max-width:100%;max-height:90px}
+.tile .nm{font-size:.75rem;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:.3rem}
+.tile .del{position:absolute;right:4px;top:4px;padding:0 .4rem}
 </style>
 </head>
 <body>
@@ -50,7 +62,21 @@ body{height:100vh;display:flex;flex-direction:column}
     <div id="stage-host"><div id="stage"><iframe id="frame"></iframe></div></div>
   </div>
   <div id="panel">
-    <div><div class="dim">Ebenen <span>(oben = vorne, ziehen zum Umordnen)</span></div><ul id="layers"></ul></div>
+    <div>
+      <div class="row"><span class="dim">Ebenen</span><span style="flex:1"></span>
+        <button id="add-text">+ Text</button><button id="add-image">+ Bild</button></div>
+      <ul id="layers"></ul>
+      <div class="dim small">oben = vorne · ziehen zum Umordnen</div>
+    </div>
+    <div id="item-ctl" hidden>
+      <div id="text-ctl">
+        <label class="field"><span class="dim">Text</span><input id="it-text" maxlength="200"></label>
+        <div class="row"><label class="field"><span class="dim">Farbe</span><input type="color" id="it-color"></label>
+          <label class="field" style="flex:1"><span class="dim">Stil</span><select id="it-style"></select></label></div>
+      </div>
+      <div class="ctl"><label>Grösse</label><input type="range" id="it-size" min="1" max="60" step="0.5"><input type="number" id="it-sizen" step="0.5"></div>
+      <div class="row"><button id="it-swap">Bild wechseln</button><button id="it-del" class="danger">Ebene löschen</button></div>
+    </div>
     <div id="controls" hidden>
       <div class="ctl"><label>X</label><input type="range" id="x" min="-100" max="100" step="0.1"><input type="number" id="xn" step="0.1"></div>
       <div class="ctl"><label>Y</label><input type="range" id="y" min="-100" max="100" step="0.1"><input type="number" id="yn" step="0.1"></div>
@@ -58,7 +84,7 @@ body{height:100vh;display:flex;flex-direction:column}
       <div class="ctl"><label>Drehung °</label><input type="range" id="rotate" min="-180" max="180" step="0.5"><input type="number" id="rotaten" step="0.5"></div>
       <label class="row"><input type="checkbox" id="anim"> Animation</label>
       <div class="ctl" id="anim-kind-row"><label>Art</label><select id="anim-kind"></select><span></span></div>
-      <div class="ctl"><label>Stärke %</label><input type="range" id="intensity" min="0" max="200" step="5"><input type="number" id="intensityn" step="5"></div>
+      <div class="ctl"><label id="intensity-label">Stärke %</label><input type="range" id="intensity" min="0" max="200" step="5"><input type="number" id="intensityn" step="5"></div>
       <div class="row"><button id="reset-el">Element zurücksetzen</button></div>
     </div>
     <p class="dim" id="hint">Element wählen oder in der Vorschau anklicken.</p>
@@ -67,6 +93,15 @@ body{height:100vh;display:flex;flex-direction:column}
     <div class="row"><button id="reset-all" class="danger">Alles zurücksetzen</button></div>
   </div>
 </div>
+<dialog id="lib">
+  <div class="row"><strong>Bilder-Bibliothek</strong><span style="flex:1"></span><button id="lib-close">Schliessen</button></div>
+  <label class="row">
+    <input type="file" id="lib-file" multiple accept=".png,.jpg,.jpeg,.gif,.webp,.svg,.webm">
+    <span class="dim">png, jpg, gif, webp, svg, webm · max. 25 MB</span>
+  </label>
+  <div id="lib-msg" class="dim"></div>
+  <div id="lib-grid"></div>
+</dialog>
 <script src="/editor.js" type="module"></script>
 </body>
 </html>

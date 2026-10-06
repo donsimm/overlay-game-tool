@@ -6,7 +6,7 @@ from pathlib import Path
 DATA_DIR = Path(os.environ.get("OVERLAY_DATA_DIR", Path(__file__).resolve().parent.parent / "data"))
 CONFIG_FILE = DATA_DIR / "config.json"
 
-_DEFAULT = {"connections": {}, "modules": []}
+_DEFAULT = {"connections": {}, "modules": [], "assets": []}
 _cache: dict | None = None  # Datei wird nur einmal gelesen (weniger I/O)
 
 
