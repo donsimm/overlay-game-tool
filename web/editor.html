@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overlay-Editor</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+body{height:100vh;display:flex;flex-direction:column}
+#bar{display:flex;gap:1rem;align-items:center;padding:.6rem 1.2rem;border-bottom:1px solid var(--line)}
+#bar h1{margin:0;font-size:1rem}
+#layout{flex:1;display:flex;min-height:0}
+#stage-area{flex:1;min-width:0;padding:1rem;display:flex;flex-direction:column;gap:.6rem}
+#stage-host{flex:1;min-height:0;position:relative}
+#stage{position:absolute;left:0;top:0;outline:1px solid var(--line);background-color:#2a2d33;
+  background-image:linear-gradient(45deg,#33363d 25%,transparent 25%,transparent 75%,#33363d 75%),linear-gradient(45deg,#33363d 25%,transparent 25%,transparent 75%,#33363d 75%);
+  background-size:24px 24px;background-position:0 0,12px 12px}
+#stage iframe{border:0;transform-origin:0 0;background:transparent;display:block}
+#panel{width:300px;border-left:1px solid var(--line);padding:1rem;overflow:auto;display:flex;flex-direction:column;gap:1rem}
+.els{display:flex;gap:.4rem;flex-wrap:wrap}
+.els button.active{border-color:var(--accent);background:#25203f}
+.ctl{display:grid;grid-template-columns:5.5rem 1fr 4.6rem;gap:.5rem;align-items:center}
+.ctl input[type=range]{width:100%;padding:0}
+.ctl input[type=number]{width:100%}
+.bgs{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
+#state{margin-left:auto}
+.unsaved{color:#f0b429}
+</style>
+</head>
+<body>
+<div id="bar">
+  <a href="/#modules">← Module</a>
+  <h1 id="title">Editor</h1>
+  <span class="dim" id="state"></span>
+  <button class="primary" id="save">Speichern</button>
+</div>
+<div id="layout">
+  <div id="stage-area">
+    <div class="bgs"><span class="dim">Hintergrund:</span>
+      <button data-bg="checker">Schachbrett</button><button data-bg="#14161a">Dunkel</button>
+      <button data-bg="#e9e9ec">Hell</button><button data-bg="#2a6f97">Blau</button>
+      <input type="color" id="bgcolor" value="#00aa44" title="Eigene Farbe">
+      <span class="dim">Ziehen = verschieben · Punkt an der Ecke = Grösse · Pfeiltasten = fein verschieben</span>
+    </div>
+    <div id="stage-host"><div id="stage"><iframe id="frame"></iframe></div></div>
+  </div>
+  <div id="panel">
+    <div><div class="dim">Element</div><div class="els" id="els"></div></div>
+    <div id="controls" hidden>
+      <div class="ctl"><label>X</label><input type="range" id="x" min="-100" max="100" step="0.1"><input type="number" id="xn" step="0.1"></div>
+      <div class="ctl"><label>Y</label><input type="range" id="y" min="-100" max="100" step="0.1"><input type="number" id="yn" step="0.1"></div>
+      <div class="ctl"><label>Grösse %</label><input type="range" id="scale" min="10" max="400" step="1"><input type="number" id="scalen" step="1"></div>
+      <div class="ctl"><label>Drehung °</label><input type="range" id="rotate" min="-180" max="180" step="0.5"><input type="number" id="rotaten" step="0.5"></div>
+      <label class="row"><input type="checkbox" id="anim"> Animation</label>
+      <div class="row"><button id="reset-el">Element zurücksetzen</button></div>
+    </div>
+    <p class="dim" id="hint">Element wählen oder in der Vorschau anklicken.</p>
+    <hr style="border:0;border-top:1px solid var(--line);width:100%">
+    <div class="row"><button id="anim-on">Alle Animationen an</button><button id="anim-off">Alle aus</button></div>
+    <div class="row"><button id="reset-all" class="danger">Alles zurücksetzen</button></div>
+  </div>
+</div>
+<script src="/editor.js" type="module"></script>
+</body>
+</html>

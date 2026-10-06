@@ -7,6 +7,8 @@
 <style>
 html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-family:"Be Vietnam Pro",system-ui,sans-serif;color:#fff}
 #root{position:absolute;inset:0}
+.el{position:absolute;transform:translate(-50%,-50%) rotate(var(--r,0deg)) scale(var(--s,1))}
+.noanim,.noanim *{animation:none!important}
 #debug{position:absolute;left:0;top:0;font-size:14px;background:rgba(0,0,0,.5);padding:.4rem .6rem}
 </style>
 </head>
@@ -14,31 +16,41 @@ html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-famil
 <div id="root"></div>
 <div id="debug" hidden></div>
 <script type="module">
-// Lädt pro Modul-Typ /overlays/<typ>.js (exportiert render(root, modul) und optional onEvent(ereignis)).
+// Lädt pro Modul-Typ /overlays/<typ>.js (exportiert render(root, modul)).
 // Keine Timer im Leerlauf; WebSocket-Reconnect mit wachsendem Abstand.
+// Ändert sich das Modul im Editor, lädt das Overlay live neu (auch in OBS).
 const id = location.pathname.split("/").pop();
-const debug = new URLSearchParams(location.search).has("debug");
-const box = document.getElementById("debug");
+const params = new URLSearchParams(location.search);
+const debug = params.has("debug"), edit = params.has("edit");
+const box = document.getElementById("debug"), root = document.getElementById("root");
 function note(text) { if (debug) { box.hidden = false; box.textContent = text; } }
 
-async function init() {
+let view = {};
+async function load(first) {
   const mod = await (await fetch(`/api/overlay/${id}`)).json();
-  if (!mod.enabled) return;
-  let view = {};
-  if (/^[a-z_]+$/.test(mod.type)) {
-    try { view = await import(`/overlays/${mod.type}.js`); } catch { note(`${mod.name}: Overlay für «${mod.type}» ist noch nicht umgesetzt`); }
+  if (!mod.enabled && !edit) { root.replaceChildren(); return; }
+  if (first) {
+    if (/^[a-z_]+$/.test(mod.type)) {
+      try { view = await import(`/overlays/${mod.type}.js`); } catch { note(`${mod.name}: Overlay für «${mod.type}» ist noch nicht umgesetzt`); }
+    }
+    if (edit) window.__mod = mod;
   }
-  view.render?.(document.getElementById("root"), mod);
-  connect(view);
+  view.render?.(root, mod);
+  if (first && edit) (await import("/overlays/_edit.js")).start(root, mod.layout);
 }
 let delay = 1000;
-function connect(view) {
+function connect() {
   const ws = new WebSocket(`ws://${location.host}/ws/overlay/${id}`);
   ws.onopen = () => { delay = 1000; };
-  ws.onmessage = e => view.onEvent?.(JSON.parse(e.data));
-  ws.onclose = () => { setTimeout(() => connect(view), delay); delay = Math.min(delay * 2, 30000); };
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === "module-updated" && !edit) load(false).catch(() => {});
+    else view.onEvent?.(msg);
+  };
+  ws.onclose = () => { setTimeout(connect, delay); delay = Math.min(delay * 2, 30000); };
 }
-init().catch(e => note("Fehler: " + e.message));
+load(true).catch(e => note("Fehler: " + e.message));
+if (!edit) connect();
 </script>
 </body>
 </html>

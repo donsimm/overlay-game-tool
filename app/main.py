@@ -111,11 +111,13 @@ class ModulePatch(BaseModel):
     height: int | None = None
     enabled: bool | None = None
     settings: dict[str, str] | None = None
+    layout: dict[str, dict[str, float | bool]] | None = None
 
 
 @app.get("/api/module-types")
 async def module_types():
-    return [{"type": k, "label": v["label"], "description": v["description"], "fields": v.get("fields", [])}
+    return [{"type": k, "label": v["label"], "description": v["description"], "fields": v.get("fields", []),
+             "elements": v.get("elements", [])}
             for k, v in modules.MODULE_TYPES.items()]
 
 
@@ -160,8 +162,14 @@ async def patch_module(mid: str, body: ModulePatch):
                 raise HTTPException(400, f"{k}: ungültige Farbe")
             clean[k] = v
         changes["settings"] = clean
+    if "layout" in changes:
+        try:
+            changes["layout"] = modules.validate_layout(mod["type"], changes["layout"])
+        except ValueError as e:
+            raise HTTPException(400, str(e))
     mod.update(changes)
     store.save(data)
+    await hub.broadcast(mid, {"type": "module-updated"})  # offene Overlays (OBS) laden live neu
     return mod
 
 
@@ -181,26 +189,36 @@ async def overlay(mid: str):
     return FileResponse(WEB / "overlay.html")
 
 
+@app.get("/editor/{mid}", response_class=HTMLResponse)
+async def editor(mid: str):
+    if not any(m["id"] == mid for m in store.load()["modules"]):
+        raise HTTPException(404, "Modul nicht gefunden")
+    return FileResponse(WEB / "editor.html")
+
+
 @app.get("/api/overlay/{mid}")
 async def overlay_config(mid: str):
     mod = next((m for m in store.load()["modules"] if m["id"] == mid), None)
     if not mod:
         raise HTTPException(404, "Modul nicht gefunden")
-    return {**mod, "settings": {**modules.defaults(mod["type"]), **mod["settings"]}}
+    return {**mod, "settings": {**modules.defaults(mod["type"]), **mod["settings"]},
+            "layout": modules.merged_layout(mod)}
 
 
 class Hub:
-    """Verteilt Ereignisse (später: Chat, Follows, Kanalpunkte) an offene Overlays."""
+    """Verteilt Ereignisse (später: Chat, Follows, Kanalpunkte) an die offenen Overlays eines Moduls."""
 
     def __init__(self):
-        self.clients: set[WebSocket] = set()
+        self.clients: dict[WebSocket, str] = {}
 
-    async def broadcast(self, message: dict):
-        for ws in list(self.clients):
+    async def broadcast(self, mid: str, message: dict):
+        for ws, ws_mid in list(self.clients.items()):
+            if ws_mid != mid:
+                continue
             try:
                 await ws.send_json(message)
             except Exception:
-                self.clients.discard(ws)
+                self.clients.pop(ws, None)
 
 
 hub = Hub()
@@ -213,14 +231,14 @@ async def overlay_ws(ws: WebSocket, mid: str):
         await ws.close(code=1008)
         return
     await ws.accept()
-    hub.clients.add(ws)
+    hub.clients[ws] = mid
     try:
         while True:
             await ws.receive_text()
     except WebSocketDisconnect:
         pass
     finally:
-        hub.clients.discard(ws)
+        hub.clients.pop(ws, None)
 
 
 app.mount("/", StaticFiles(directory=WEB, html=True), name="web")

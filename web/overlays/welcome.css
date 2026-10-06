@@ -1,21 +1,22 @@
-/* Nur transform/opacity werden animiert (GPU-freundlich, wenig CPU). */
-.welcome{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2vh;text-align:center;--accent:#ff4d6d}
-.welcome .glow{position:absolute;width:60vh;height:60vh;border-radius:50%;background:radial-gradient(circle,var(--accent) 0%,transparent 65%);opacity:.28;animation:glow 5s ease-in-out infinite}
-.welcome .heart{position:relative;height:22vh;transform:rotate(-12deg);animation:beat 2.4s ease-in-out infinite}
-.welcome .stack{position:relative;display:flex;flex-direction:column;gap:1.4vh;animation:float 6s ease-in-out infinite}
+/* Nur transform/opacity werden animiert (GPU-freundlich, wenig CPU). Position/Grösse/Drehung kommen vom Layout (.el). */
+.welcome{position:absolute;inset:0;--accent:#ff4d6d}
+.welcome .glow{position:absolute;left:50%;top:50%;width:60vh;height:60vh;margin:-30vh 0 0 -30vh;border-radius:50%;background:radial-gradient(circle,var(--accent) 0%,transparent 65%);opacity:.28;z-index:-1;animation:glow 5s ease-in-out infinite}
+.welcome .beat img{display:block;height:22vh;animation:beat 2.4s ease-in-out infinite}
+.welcome .float{animation:float 6s ease-in-out infinite}
+.welcome .float.late{animation-delay:-2s}
 /* Comic-Look (leicht): runder schwarzer Rand (Ring aus Schatten, keine spitzen Ecken),
    Schatten wird aus der fertigen Rand-Form berechnet und ist dadurch ebenfalls rund. */
-.welcome h1,.welcome p{margin:0;color:#fff}
-.welcome h1{font-size:9vh;font-weight:800;letter-spacing:.01em;transform:rotate(-1.5deg);
+.welcome h1,.welcome p{margin:0;color:#fff;white-space:nowrap;text-align:center}
+.welcome h1{font-size:9vh;font-weight:800;letter-spacing:.01em;
   text-shadow:0.600vh 0.000vh 0 #000,0.580vh 0.155vh 0 #000,0.520vh 0.300vh 0 #000,0.424vh 0.424vh 0 #000,0.300vh 0.520vh 0 #000,0.155vh 0.580vh 0 #000,0.000vh 0.600vh 0 #000,-0.155vh 0.580vh 0 #000,-0.300vh 0.520vh 0 #000,-0.424vh 0.424vh 0 #000,-0.520vh 0.300vh 0 #000,-0.580vh 0.155vh 0 #000,-0.600vh 0.000vh 0 #000,-0.580vh -0.155vh 0 #000,-0.520vh -0.300vh 0 #000,-0.424vh -0.424vh 0 #000,-0.300vh -0.520vh 0 #000,-0.155vh -0.580vh 0 #000,-0.000vh -0.600vh 0 #000,0.155vh -0.580vh 0 #000,0.300vh -0.520vh 0 #000,0.424vh -0.424vh 0 #000,0.520vh -0.300vh 0 #000,0.580vh -0.155vh 0 #000;
   filter:drop-shadow(.7vh .8vh 0 rgba(0,0,0,.4)) drop-shadow(.4vh .6vh 1.2vh rgba(0,0,0,.25))}
-.welcome p{font-size:4.4vh;font-weight:700;transform:rotate(-1deg);
+.welcome p{font-size:4.4vh;font-weight:700;
   text-shadow:0.450vh 0.000vh 0 #000,0.435vh 0.116vh 0 #000,0.390vh 0.225vh 0 #000,0.318vh 0.318vh 0 #000,0.225vh 0.390vh 0 #000,0.116vh 0.435vh 0 #000,0.000vh 0.450vh 0 #000,-0.116vh 0.435vh 0 #000,-0.225vh 0.390vh 0 #000,-0.318vh 0.318vh 0 #000,-0.390vh 0.225vh 0 #000,-0.435vh 0.116vh 0 #000,-0.450vh 0.000vh 0 #000,-0.435vh -0.116vh 0 #000,-0.390vh -0.225vh 0 #000,-0.318vh -0.318vh 0 #000,-0.225vh -0.390vh 0 #000,-0.116vh -0.435vh 0 #000,-0.000vh -0.450vh 0 #000,0.116vh -0.435vh 0 #000,0.225vh -0.390vh 0 #000,0.318vh -0.318vh 0 #000,0.390vh -0.225vh 0 #000,0.435vh -0.116vh 0 #000;
   filter:drop-shadow(.5vh .6vh 0 rgba(0,0,0,.4)) drop-shadow(.3vh .5vh 1vh rgba(0,0,0,.25))}
 .welcome .dots i{display:inline-block;font-style:normal;animation:dot 1.8s ease-in-out infinite}
 .welcome .dots i:nth-child(2){animation-delay:.3s}
 .welcome .dots i:nth-child(3){animation-delay:.6s}
-@keyframes beat{0%,100%{transform:rotate(-12deg) scale(1)}12%{transform:rotate(-12deg) scale(1.1)}24%{transform:rotate(-12deg) scale(1)}36%{transform:rotate(-12deg) scale(1.06)}48%{transform:rotate(-12deg) scale(1)}}
+@keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.1)}24%{transform:scale(1)}36%{transform:scale(1.06)}48%{transform:scale(1)}}
 @keyframes float{0%,100%{transform:translateY(-.8vh)}50%{transform:translateY(.8vh)}}
 @keyframes glow{0%,100%{transform:scale(.92);opacity:.2}50%{transform:scale(1.08);opacity:.34}}
 @keyframes dot{0%,100%{opacity:.2}40%{opacity:1}}

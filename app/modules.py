@@ -6,6 +6,12 @@ MODULE_TYPES = {
         "label": "Willkommen",
         "description": "«Herzlich Willkommen – der Stream geht gleich los», leicht animiert",
         "size": (1920, 1080),
+        # Positionen in % der Fläche, ab Mitte (x, y); scale 1 = Standardgrösse; rotate in Grad
+        "elements": [
+            {"key": "heart", "label": "Herz", "defaults": {"x": 0, "y": -12, "scale": 1, "rotate": -12, "anim": True}},
+            {"key": "title", "label": "Titel", "defaults": {"x": 0, "y": 8, "scale": 1, "rotate": -1.5, "anim": True}},
+            {"key": "subtitle", "label": "Untertitel", "defaults": {"x": 0, "y": 18, "scale": 1, "rotate": -1, "anim": True}},
+        ],
         "fields": [
             {"key": "title", "label": "Titel", "kind": "text", "default": "Herzlich Willkommen"},
             {"key": "subtitle", "label": "Untertitel", "kind": "text", "default": "Der Stream geht gleich los"},
@@ -25,6 +31,45 @@ def defaults(type_: str) -> dict:
     return {f["key"]: f["default"] for f in MODULE_TYPES[type_].get("fields", [])}
 
 
+LAYOUT_LIMITS = {"x": (-150, 150), "y": (-150, 150), "scale": (0.1, 6), "rotate": (-180, 180)}
+
+
+def layout_defaults(type_: str) -> dict:
+    return {e["key"]: dict(e["defaults"]) for e in MODULE_TYPES[type_].get("elements", [])}
+
+
+def merged_layout(mod: dict) -> dict:
+    out = layout_defaults(mod["type"])
+    for key, values in mod.get("layout", {}).items():
+        if key in out:
+            out[key].update(values)
+    return out
+
+
+def validate_layout(type_: str, layout: dict) -> dict:
+    """Prüft und bereinigt ein vom Editor gesendetes Layout."""
+    known = layout_defaults(type_)
+    clean = {}
+    for key, values in layout.items():
+        if key not in known:
+            raise ValueError(f"Unbekanntes Element: {key}")
+        item = dict(known[key])
+        for field, value in values.items():
+            if field == "anim":
+                if not isinstance(value, bool):
+                    raise ValueError(f"{key}.anim muss wahr/falsch sein")
+                item["anim"] = value
+            elif field in LAYOUT_LIMITS:
+                lo, hi = LAYOUT_LIMITS[field]
+                if isinstance(value, bool) or not isinstance(value, (int, float)) or not lo <= value <= hi:
+                    raise ValueError(f"{key}.{field} muss zwischen {lo} und {hi} liegen")
+                item[field] = round(float(value), 3)
+            else:
+                raise ValueError(f"Unbekannte Eigenschaft: {field}")
+        clean[key] = item
+    return clean
+
+
 def new_module(type_: str, name: str) -> dict:
     if type_ not in MODULE_TYPES:
         raise ValueError(f"Unbekannter Modul-Typ: {type_}")
@@ -37,4 +82,5 @@ def new_module(type_: str, name: str) -> dict:
         "height": h,
         "enabled": True,
         "settings": defaults(type_),
+        "layout": {},
     }

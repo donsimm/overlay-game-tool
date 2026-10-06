@@ -24,6 +24,12 @@ Pro Dienst wird eine eigene App benötigt (Client-ID und Client-Secret). Diese t
 Unter «Module» ein Modul erstellen, die URL kopieren und in OBS als Browserquelle einfügen
 (Breite/Höhe wie angezeigt).
 
+## Editor (Layout live anpassen)
+
+Bei Modulen mit verschiebbaren Elementen steht «Editor öffnen». Die Vorschau ist die echte Overlay-Seite.
+Elemente ziehen, Punkt an der Ecke = Grösse, Panel = X/Y, Grösse, Drehung, Animation an/aus.
+Speichern (Ctrl+S) aktualisiert offene Overlays in OBS sofort, ohne Neuladen.
+
 ## Ressourcen und Sicherheit
 
 - Schrift: Be Vietnam Pro (lokal in `web/fonts`, Lizenz SIL OFL 1.1) ist die Standardschrift aller Overlays.
