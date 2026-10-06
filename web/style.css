@@ -31,3 +31,9 @@ summary{cursor:pointer;color:var(--dim)}
 a{color:#a99bff}
 .field{display:flex;flex-direction:column;gap:.2rem}input[type=color]{padding:0;height:2.1rem;width:3.5rem}
 [hidden]{display:none!important}
+
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.6rem .8rem;margin:.6rem 0}
+.field.check{flex-direction:row;align-items:center;gap:.5rem}
+.field.check span{order:2}
+.field input[type=checkbox]{width:1.1rem;height:1.1rem}
+.field select{max-width:100%}

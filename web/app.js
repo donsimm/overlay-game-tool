@@ -34,6 +34,11 @@ function connectionCard(c) {
       c.account?.avatar ? h("img", {src: c.account.avatar, alt: ""}) : null,
       h("strong", {textContent: c.account?.name || "(unbekannt)"})));
     if (c.error) card.append(h("p", {className: "err", textContent: c.error}));
+    if (c.chat) {
+      const labels = {idle: "bereit (verbindet, sobald ein Chat-Overlay offen ist)", connecting: "verbindet …", connected: "verbunden"};
+      card.append(h("p", {className: "dim" + (["error", "not-connected"].includes(c.chat.state) ? " err" : ""),
+        textContent: "Chat-Empfang: " + (labels[c.chat.state] || `${c.chat.state} – ${c.chat.detail}`)}));
+    }
     card.append(h("div", {className: "row"},
       h("button", {textContent: "Verbindung prüfen", onclick: guard(async () => {
         const r = await api(`/api/connections/${c.key}/check`, "POST");
@@ -71,9 +76,16 @@ function moduleCard(m) {
   const hh = h("input", {type: "number", value: m.height, min: 16, max: 8192});
   const type = types.find(t => t.type === m.type);
   const label = type?.label || m.type;
+  // Einstellungsfelder je nach Art: Text, Farbe, Zahl, Schalter, Auswahl
   const inputs = (type?.fields || []).map(f => {
-    const input = h("input", {type: f.kind === "color" ? "color" : "text", value: m.settings[f.key] ?? f.default, maxLength: 120});
-    return {key: f.key, input, row: h("label", {className: "field"}, h("span", {className: "dim", textContent: f.label}), input)};
+    const cur = m.settings[f.key] ?? f.default;
+    let input;
+    if (f.kind === "bool") input = h("input", {type: "checkbox", checked: !!cur});
+    else if (f.kind === "select") input = h("select", {}, ...f.options.map(o => h("option", {value: o.value, textContent: o.label, selected: o.value === cur})));
+    else if (f.kind === "number") input = h("input", {type: "number", value: cur, min: f.min, max: f.max, step: f.step});
+    else input = h("input", {type: f.kind === "color" ? "color" : "text", value: cur, maxLength: 200});
+    const read = () => f.kind === "bool" ? input.checked : f.kind === "number" ? parseFloat(input.value) : input.value;
+    return {key: f.key, read, row: h("label", {className: "field" + (f.kind === "bool" ? " check" : "")}, h("span", {className: "dim", textContent: f.label}), input)};
   });
   return h("div", {className: "card"},
     h("h2", {}, m.name, h("span", {className: "badge", textContent: label}),
@@ -85,11 +97,13 @@ function moduleCard(m) {
       h("a", {href: `/editor/${m.id}`, target: "_blank", textContent: "Editor öffnen"}),
       h("a", {href: url + "?debug=1", target: "_blank", textContent: "Vorschau"})),
     h("p", {className: "dim", textContent: `In OBS Breite ${m.width} und Höhe ${m.height} einstellen.`}),
-    inputs.length ? h("div", {className: "row"}, ...inputs.map(i => i.row)) : null,
+    inputs.length ? h("details", {open: inputs.length <= 4}, h("summary", {textContent: "Einstellungen"}),
+      h("div", {className: "fields"}, ...inputs.map(i => i.row))) : null,
+    type?.tests?.length ? testRow(m, type.tests) : null,
     h("div", {className: "row"}, name, w, "×", hh,
       h("button", {textContent: "Speichern", onclick: guard(async () => {
         await api(`/api/modules/${m.id}`, "PATCH", {name: name.value, width: +w.value, height: +hh.value,
-          settings: Object.fromEntries(inputs.map(i => [i.key, i.input.value]))});
+          settings: Object.fromEntries(inputs.map(i => [i.key, i.read()]))});
         notice("Gespeichert."); await loadModules();
       })}),
       h("button", {textContent: m.enabled ? "Deaktivieren" : "Aktivieren", onclick: guard(async () => {
@@ -99,6 +113,14 @@ function moduleCard(m) {
         if (!confirm(`Modul «${m.name}» löschen?`)) return;
         await api(`/api/modules/${m.id}`, "DELETE"); await loadModules();
       })})));
+}
+// Testereignisse an die offenen Overlays senden (ohne Twitch), z. B. um die Darstellung zu prüfen
+function testRow(m, tests) {
+  return h("details", {}, h("summary", {textContent: "Test (ohne Twitch)"}),
+    h("div", {className: "row"}, ...tests.map(t => h("button", {textContent: t.label, onclick: guard(async () => {
+      await api(`/api/modules/${m.id}/test?kind=${t.key}`, "POST");
+    })}))),
+    h("p", {className: "dim", textContent: "Sendet Beispielnachrichten an die offenen Overlays (OBS oder Vorschau)."}));
 }
 async function loadModules() {
   if (!types.length) {

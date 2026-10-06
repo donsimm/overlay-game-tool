@@ -1,0 +1,23 @@
+/* Chat-Overlay. Alles in em, die Grösse kommt aus --fs (vh). Nur Deckkraft/Verschiebung werden animiert. */
+.chatbox{display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;box-sizing:border-box;
+  width:calc(var(--bw,96)*1vw);height:calc(var(--bh,96)*1vh);font-size:calc(var(--fs,2.8)*1vh);
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 12%);mask-image:linear-gradient(to bottom,transparent 0,#000 12%)}
+.msg{color:#fff;font-weight:700;line-height:1.3;margin:.18em 0;padding:.05em .3em;overflow-wrap:anywhere;word-break:break-word;
+  opacity:0;transform:translateY(.5em);transition:opacity .35s ease,transform .35s ease}
+.msg.in{opacity:1;transform:none}
+.msg.out{opacity:0;transition:opacity .4s ease}
+.chatbox .txt-comic{filter:none}   /* Chat: nur Rand, kein Filter (animierte Emotes würden sonst ständig neu gezeichnet) */
+.msg .name{font-weight:800}
+.msg .badge{height:1.1em;width:auto;vertical-align:-.2em;margin-right:.2em}
+.msg .emote{height:1.8em;width:auto;vertical-align:middle;margin:-.3em .04em}
+.msg .gif{display:block;height:calc(var(--gh,4)*1.3em);max-width:100%;width:auto;margin:.25em 0 .1em;border-radius:.35em;border:.08em solid #000}
+.msg .cheer{height:1.6em;width:auto;vertical-align:middle;margin:-.3em .05em}
+.msg .bits{font-weight:800}
+.msg .mention{font-weight:800;color:#ffd24d}
+.msg .link{opacity:.85;font-style:italic}
+.msg .reply{display:block;font-size:.72em;font-weight:600;opacity:.85}
+.msg.hl{background:linear-gradient(90deg,rgba(145,70,255,.55),rgba(145,70,255,.15));border-radius:.4em}
+.msg.intro{background:linear-gradient(90deg,rgba(255,255,255,.28),transparent);border-radius:.4em}
+.msg.notice{border-left:.28em solid var(--nc,#9146ff);background:linear-gradient(90deg,rgba(0,0,0,.5),rgba(0,0,0,.05));border-radius:.2em .4em .4em .2em;padding-left:.5em}
+.msg.notice .sys{font-weight:800}
+#chat-status{position:absolute;right:0;top:0;font-size:14px;background:rgba(0,0,0,.6);padding:.3rem .5rem;font-family:system-ui,sans-serif}

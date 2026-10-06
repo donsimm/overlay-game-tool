@@ -45,7 +45,7 @@ async function load(first) {
 }
 let delay = 1000;
 function connect() {
-  const ws = new WebSocket(`ws://${location.host}/ws/overlay/${id}`);
+  const ws = new WebSocket(`ws://${location.host}/ws/overlay/${id}${edit ? "?edit=1" : ""}`);
   ws.onopen = () => { delay = 1000; };
   ws.onmessage = e => {
     const msg = JSON.parse(e.data);
@@ -55,7 +55,7 @@ function connect() {
   ws.onclose = () => { setTimeout(connect, delay); delay = Math.min(delay * 2, 30000); };
 }
 load(true).catch(e => note("Fehler: " + e.message));
-if (!edit) connect();
+connect();
 </script>
 </body>
 </html>

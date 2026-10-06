@@ -82,12 +82,15 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
       <div class="ctl"><label>Y</label><input type="range" id="y" min="-100" max="100" step="0.1"><input type="number" id="yn" step="0.1"></div>
       <div class="ctl"><label>Grösse %</label><input type="range" id="scale" min="10" max="400" step="1"><input type="number" id="scalen" step="1"></div>
       <div class="ctl"><label>Drehung °</label><input type="range" id="rotate" min="-180" max="180" step="0.5"><input type="number" id="rotaten" step="0.5"></div>
-      <label class="row"><input type="checkbox" id="anim"> Animation</label>
-      <div class="ctl" id="anim-kind-row"><label>Art</label><select id="anim-kind"></select><span></span></div>
-      <div class="ctl"><label id="intensity-label">Stärke %</label><input type="range" id="intensity" min="0" max="200" step="5"><input type="number" id="intensityn" step="5"></div>
+      <div id="anim-block">
+        <label class="row"><input type="checkbox" id="anim"> Animation</label>
+        <div class="ctl" id="anim-kind-row"><label>Art</label><select id="anim-kind"></select><span></span></div>
+        <div class="ctl"><label id="intensity-label">Stärke %</label><input type="range" id="intensity" min="0" max="200" step="5"><input type="number" id="intensityn" step="5"></div>
+      </div>
       <div class="row"><button id="reset-el">Element zurücksetzen</button></div>
     </div>
     <p class="dim" id="hint">Element wählen oder in der Vorschau anklicken.</p>
+    <div id="test-box" hidden><div class="dim">Test (ohne Twitch)</div><div class="row" id="test-btns"></div></div>
     <hr style="border:0;border-top:1px solid var(--line);width:100%">
     <div class="row"><button id="anim-on">Alle Animationen an</button><button id="anim-off">Alle aus</button></div>
     <div class="row"><button id="reset-all" class="danger">Alles zurücksetzen</button></div>

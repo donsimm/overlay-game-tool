@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Redirect
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import assets, modules, oauth, store
+from . import assets, chat, modules, oauth, store
 
 WEB = Path(__file__).resolve().parent.parent / "web"
 PORT = int(os.environ.get("OVERLAY_PORT", "8080"))
@@ -45,7 +45,11 @@ def _provider(key: str) -> str:
 @app.get("/api/connections")
 async def connections():
     # Nur lokaler Stand, keine Netzwerkaufrufe (ressourcenschonend)
-    return [{**oauth.public_status(key, PORT), "error": None} for key in oauth.PROVIDERS]
+    out = [{**oauth.public_status(key, PORT), "error": None} for key in oauth.PROVIDERS]
+    for item in out:
+        if item["key"] == "twitch":
+            item["chat"] = {"state": chat_service.state, "detail": chat_service.detail}
+    return out
 
 
 @app.post("/api/connections/{key}/check")
@@ -111,7 +115,7 @@ class ModulePatch(BaseModel):
     width: int | None = None
     height: int | None = None
     enabled: bool | None = None
-    settings: dict[str, str] | None = None
+    settings: dict[str, str | float | bool] | None = None
     layout: dict[str, dict[str, float | bool | str]] | None = None
     items: list[dict[str, Any]] | None = None
 
@@ -119,7 +123,7 @@ class ModulePatch(BaseModel):
 @app.get("/api/module-types")
 async def module_types():
     return [{"type": k, "label": v["label"], "description": v["description"], "fields": v.get("fields", []),
-             "elements": v.get("elements", [])}
+             "elements": v.get("elements", []), "tests": v.get("tests", [])}
             for k, v in modules.MODULE_TYPES.items()]
 
 
@@ -210,11 +214,10 @@ async def patch_module(mid: str, body: ModulePatch):
         for k, v in changes["settings"].items():
             if k not in fields:
                 raise HTTPException(400, f"Unbekannte Einstellung: {k}")
-            if len(v) > 120:
-                raise HTTPException(400, f"{k}: maximal 120 Zeichen")
-            if fields[k]["kind"] == "color" and not re.fullmatch(r"#[0-9a-fA-F]{6}", v):
-                raise HTTPException(400, f"{k}: ungültige Farbe")
-            clean[k] = v
+            try:
+                clean[k] = modules.validate_setting(fields[k], v)
+            except ValueError as e:
+                raise HTTPException(400, str(e))
         changes["settings"] = clean
     try:
         if "items" in changes:
@@ -275,22 +278,40 @@ async def overlay_config(mid: str):
 
 
 class Hub:
-    """Verteilt Ereignisse (später: Chat, Follows, Kanalpunkte) an die offenen Overlays eines Moduls."""
+    """Verteilt Ereignisse (Chat, später Follows, Kanalpunkte) an die offenen Overlays."""
 
     def __init__(self):
-        self.clients: dict[WebSocket, str] = {}
+        self.clients: dict[WebSocket, dict] = {}   # ws -> {"mid": Modul-ID, "type": Modul-Typ}
 
-    async def broadcast(self, mid: str, message: dict):
-        for ws, ws_mid in list(self.clients.items()):
-            if ws_mid != mid:
+    async def send(self, message: dict, where):
+        for ws, info in list(self.clients.items()):
+            if not where(info):
                 continue
             try:
                 await ws.send_json(message)
             except Exception:
                 self.clients.pop(ws, None)
 
+    async def broadcast(self, mid: str, message: dict):
+        await self.send(message, lambda i: i["mid"] == mid)
+
+    async def broadcast_type(self, type_: str, message: dict):
+        await self.send(message, lambda i: i["type"] == type_)
+
 
 hub = Hub()
+
+
+def _want_thirdparty() -> bool:
+    return any(m["type"] == "chat" and m["settings"].get("third_party") for m in store.load()["modules"])
+
+
+async def _chat_status(state: str, detail: str):
+    await hub.broadcast_type("chat", {"type": "chat-status", "state": state, "detail": detail})
+
+
+chat_service = chat.ChatService(emit=lambda msg: hub.broadcast_type("chat", msg), on_status=_chat_status,
+                                want_thirdparty=_want_thirdparty)
 
 
 @app.websocket("/ws/overlay/{mid}")
@@ -299,8 +320,18 @@ async def overlay_ws(ws: WebSocket, mid: str):
     if origin and urlparse(origin).hostname not in {h.strip("[]") for h in LOCAL_HOSTS}:
         await ws.close(code=1008)
         return
+    mod = next((m for m in store.load()["modules"] if m["id"] == mid), None)
+    if not mod:
+        await ws.close(code=1008)
+        return
     await ws.accept()
-    hub.clients[ws] = mid
+    hub.clients[ws] = {"mid": mid, "type": mod["type"]}
+    # Nur echte Overlays (nicht der Editor) halten die Twitch-Verbindung offen
+    live = mod["type"] == "chat" and not ws.query_params.get("edit")
+    if mod["type"] == "chat":
+        await ws.send_json({"type": "chat-status", "state": chat_service.state, "detail": chat_service.detail})
+    if live:
+        chat_service.acquire()
     try:
         while True:
             await ws.receive_text()
@@ -308,6 +339,27 @@ async def overlay_ws(ws: WebSocket, mid: str):
         pass
     finally:
         hub.clients.pop(ws, None)
+        if live:
+            chat_service.release()
+
+
+@app.post("/api/modules/{mid}/test")
+async def test_event(mid: str, kind: str):
+    """Sendet Testereignisse an die offenen Overlays dieses Moduls (ohne Twitch)."""
+    mod = next((m for m in store.load()["modules"] if m["id"] == mid), None)
+    if not mod or not modules.MODULE_TYPES[mod["type"]].get("tests"):
+        raise HTTPException(404, "Modul nicht gefunden oder nicht testbar")
+    events = chat.sample(kind)
+    if not events:
+        raise HTTPException(400, "Unbekannte Testart")
+    for ev in events:
+        await hub.broadcast(mid, ev)
+    return {"sent": len(events)}
+
+
+@app.get("/api/chat/status")
+async def chat_status():
+    return {"state": chat_service.state, "detail": chat_service.detail, "listeners": chat_service.listeners}
 
 
 app.mount("/", StaticFiles(directory=WEB, html=True), name="web")

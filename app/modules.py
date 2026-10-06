@@ -15,7 +15,7 @@ TEXT_ANIMATIONS = MOTION_ANIMATIONS + [
 ]
 ITEM_ANIMATIONS = {"text": TEXT_ANIMATIONS, "image": MOTION_ANIMATIONS}
 TEXT_STYLES = [{"key": "comic", "label": "Comic (Rand + Schatten)"},
-               {"key": "plain", "label": "Schlicht (weicher Schatten)"},
+               {"key": "plain", "label": "Schlicht (leichter Rand)"},
                {"key": "none", "label": "Ohne"}]
 # Layout-Standard für frei hinzugefügte Ebenen (Texte/Bilder)
 ITEM_LAYOUT_DEFAULTS = {"x": 0, "y": 0, "scale": 1, "rotate": 0, "anim": False, "visible": True,
@@ -55,7 +55,44 @@ MODULE_TYPES = {
             {"key": "accent", "label": "Leuchtfarbe", "kind": "color", "default": "#ff4d6d"},
         ],
     },
-    "chat": {"label": "Chat", "description": "Chatnachrichten von Twitch und YouTube", "size": (500, 800)},
+    "chat": {
+        "label": "Chat",
+        "description": "Chatnachrichten von Twitch (Emotes, GIFs, Cheers, Antworten, Subs, Raids)",
+        "size": (600, 900),
+        "elements": [
+            {"key": "chat", "label": "Chat", "animations": [],
+             "defaults": {"x": 0, "y": 0, "scale": 1, "rotate": 0, "anim": True, "visible": True,
+                          "z": 0, "intensity": 1, "animation": "none"}},
+        ],
+        "fields": [
+            {"key": "font_size", "label": "Schriftgrösse", "kind": "number", "min": 1.2, "max": 8, "step": 0.1, "default": 2.8},
+            {"key": "box_w", "label": "Breite % der Fläche", "kind": "number", "min": 10, "max": 100, "step": 1, "default": 96},
+            {"key": "box_h", "label": "Höhe % der Fläche", "kind": "number", "min": 10, "max": 100, "step": 1, "default": 96},
+            {"key": "max_messages", "label": "Max. Nachrichten", "kind": "number", "min": 1, "max": 60, "step": 1, "default": 12},
+            {"key": "lifetime", "label": "Ausblenden nach (Sek., 0 = nie)", "kind": "number", "min": 0, "max": 3600, "step": 1, "default": 60},
+            {"key": "style", "label": "Textstil", "kind": "select", "default": "comic",
+             "options": [{"value": o["key"], "label": o["label"]} for o in TEXT_STYLES]},
+            {"key": "links", "label": "Links", "kind": "select", "default": "domain",
+             "options": [{"value": "hidden", "label": "ausblenden"}, {"value": "domain", "label": "nur Domain zeigen"},
+                         {"value": "text", "label": "als Text zeigen"}]},
+            {"key": "hide_commands", "label": "Befehle (!…) ausblenden", "kind": "bool", "default": True},
+            {"key": "hide_users", "label": "Nutzer ausblenden (Komma)", "kind": "text",
+             "default": "nightbot, streamelements, streamlabs, moobot, fossabot, wizebot"},
+            {"key": "badges", "label": "Badges zeigen", "kind": "bool", "default": True},
+            {"key": "name_colors", "label": "Namensfarben", "kind": "bool", "default": True},
+            {"key": "animated_emotes", "label": "Animierte Emotes", "kind": "bool", "default": True},
+            {"key": "gifs", "label": "GIFs zeigen", "kind": "bool", "default": True},
+            {"key": "gif_height", "label": "GIF-Höhe (Zeilen)", "kind": "number", "min": 1, "max": 12, "step": 0.5, "default": 4},
+            {"key": "third_party", "label": "7TV/BTTV/FFZ-Emotes", "kind": "bool", "default": False},
+            {"key": "replies", "label": "Antworten zeigen", "kind": "bool", "default": True},
+            {"key": "notices", "label": "Subs/Raids/Ankündigungen zeigen", "kind": "bool", "default": True},
+        ],
+        "tests": [{"key": k, "label": l} for k, l in [
+            ("text", "Nachricht"), ("emotes", "Emotes"), ("cheer", "Cheer"), ("reply", "Antwort"), ("gif", "GIF"),
+            ("link", "Link"), ("mention", "Erwähnung"), ("highlight", "Hervorgehoben"), ("intro", "Erste Nachricht"),
+            ("long", "Lange Nachricht"), ("mixed", "Mehrere"), ("sub", "Sub"), ("resub", "Resub"), ("gift", "Sub-Geschenk"),
+            ("raid", "Raid"), ("announcement", "Ankündigung"), ("delete", "Letzte löschen"), ("clear", "Alles löschen")]],
+    },
     "last_follow": {"label": "Letzter Follow", "description": "Zeigt die zuletzt folgende Person", "size": (500, 120)},
     "last_sub": {"label": "Letzter Sub", "description": "Zeigt die zuletzt abonnierende Person", "size": (500, 120)},
     "logo_loop": {"label": "Logo-Loop", "description": "Animierte, sich wiederholende Logos", "size": (400, 400)},
@@ -157,6 +194,27 @@ def validate_items(items: list, assets: list) -> list:
         else:
             raise ValueError("Unbekannte Ebenen-Art")
     return out
+
+
+def validate_setting(field: dict, value):
+    """Prüft einen Einstellungswert nach Feldart (text, color, number, bool, select)."""
+    kind, label = field["kind"], field["label"]
+    if kind == "bool":
+        if not isinstance(value, bool):
+            raise ValueError(f"{label}: wahr/falsch erwartet")
+    elif kind == "number":
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not field["min"] <= value <= field["max"]:
+            raise ValueError(f"{label}: Zahl zwischen {field['min']} und {field['max']}")
+        return float(value)
+    elif kind == "select":
+        if value not in {o["value"] for o in field["options"]}:
+            raise ValueError(f"{label}: ungültige Auswahl")
+    else:
+        if not isinstance(value, str) or len(value) > 200:
+            raise ValueError(f"{label}: Text bis 200 Zeichen")
+        if kind == "color" and not COLOR_RE.fullmatch(value):
+            raise ValueError(f"{label}: ungültige Farbe")
+    return value
 
 
 def new_module(type_: str, name: str) -> dict:

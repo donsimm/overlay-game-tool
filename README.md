@@ -35,6 +35,21 @@ liegen in der Bibliothek (`data/assets/`) und lassen sich mehrfach verwenden. Da
 nur mit solchen Ebenen. Textanimationen: Schweben, Atmen, Wiegen, Schreibmaschine, Schreibmaschine mit Löschen.
 Speichern (Ctrl+S) aktualisiert offene Overlays in OBS sofort, ohne Neuladen.
 
+## Chat-Overlay (Twitch)
+
+1. Twitch unter «Verbindungen» verbinden (Berechtigung `user:read:chat`, siehe unten).
+2. Unter «Module» ein Modul «Chat» erstellen, die URL in OBS als Browserquelle einfügen (Breite/Höhe wie angezeigt).
+3. Die Verbindung zu Twitch (EventSub-WebSocket) wird nur aufgebaut, solange ein Chat-Overlay in OBS offen ist (30 s Nachlauf).
+   Der Zustand steht unter «Verbindungen» → Twitch → «Chat-Empfang» und in der Vorschau (`?debug=1`).
+4. Test ohne Twitch: Auf der Modulkarte unter «Test (ohne Twitch)» (oder im Editor) Beispielnachrichten senden.
+
+Was dargestellt wird: Text, Twitch-Emotes (animiert oder statisch), GIF-Nachrichten, Cheers (Bits), Erwähnungen, Antworten,
+Badges, Namensfarben, hervorgehobene Nachrichten (Kanalpunkte) und Erstnachrichten, Subs/Resubs/Geschenke/Raids/Ankündigungen,
+gelöschte Nachrichten und «Chat leeren». Optional 7TV/BTTV/FFZ-Emotes. Befehle (`!…`) und Bots lassen sich ausblenden.
+Links werden standardmässig nur als `[domain]` gezeigt, nie als Bild nachgeladen. Bilder werden nur von `https` geladen.
+
+Tests ohne Netzwerk: `python tests/test_chat_normalize.py`
+
 ## Ressourcen und Sicherheit
 
 - Schrift: Be Vietnam Pro (lokal in `web/fonts`, Lizenz SIL OFL 1.1) ist die Standardschrift aller Overlays.

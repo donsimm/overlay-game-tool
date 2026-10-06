@@ -98,6 +98,7 @@ function syncPanel() {
   $("#anim").checked = l.anim;
   set("intensity", Math.round(l.intensity * 100));
   const kinds = animsOf(selected);
+  $("#anim-block").hidden = kinds.length === 0 && !itemOf(selected);
   $("#anim-kind-row").hidden = kinds.length < 2;
   $("#anim-kind").replaceChildren(...kinds.map(k => Object.assign(document.createElement("option"), {value: k.key, textContent: k.label, selected: k.key === l.animation})));
   $("#intensity-label").textContent = l.animation.startsWith("typewriter") ? "Tempo %" : "Stärke %";
@@ -236,6 +237,11 @@ addEventListener("message", e => {
   document.title = `Editor – ${mod.name}`; $("#title").textContent = mod.name;
   $("#it-style").replaceChildren(...meta.text_styles.map(s => Object.assign(document.createElement("option"), {value: s.key, textContent: s.label})));
   layout = clone(mod.layout); items = clone(mod.items); saved = snap();
+  if (type.tests?.length) {   // Testknöpfe (z. B. Chat): senden Beispielereignisse an dieses Overlay
+    $("#test-box").hidden = false;
+    $("#test-btns").replaceChildren(...type.tests.map(t => Object.assign(document.createElement("button"), {
+      textContent: t.label, onclick: () => json(`/api/modules/${id}/test?kind=${t.key}`, {method: "POST"}).catch(e => alert(e.message))})));
+  }
   buildList(); fit(); updateState(); choose(null, false);
   frame.src = `/overlay/${id}?edit=1`;
 })();
