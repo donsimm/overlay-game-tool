@@ -1,0 +1,31 @@
+# Overlay Game Tool
+
+Lokaler Generator für OBS-Overlays (Browserquelle) mit Twitch- und YouTube-Anbindung.
+Stand: Grundgerüst – Oberfläche, Modulverwaltung, Twitch-/YouTube-Login. Die einzelnen Overlays folgen.
+
+## Start (Linux)
+
+    python3 -m venv .venv && . .venv/bin/activate
+    pip install -r requirements.txt
+    python run.py
+
+Oberfläche: http://localhost:8080 (nur lokal erreichbar, Port änderbar mit `OVERLAY_PORT`).
+
+## Twitch / YouTube verbinden
+
+Pro Dienst wird eine eigene App benötigt (Client-ID und Client-Secret). Diese trägst du unter
+«Verbindungen» ein; dort steht auch die Weiterleitungs-URL, die in der App eingetragen werden muss.
+
+- Twitch: https://dev.twitch.tv/console/apps
+- YouTube: https://console.cloud.google.com/apis/credentials (OAuth-Client «Webanwendung», YouTube Data API v3 aktivieren)
+
+## Module in OBS
+
+Unter «Module» ein Modul erstellen, die URL kopieren und in OBS als Browserquelle einfügen
+(Breite/Höhe wie angezeigt).
+
+## Ressourcen und Sicherheit
+
+- Ein Prozess, keine Hintergrundtasks im Leerlauf, Konfiguration im Speicher gecacht, keine Netzwerkabfragen beim Öffnen der Oberfläche.
+- Zugangsdaten und Tokens liegen in `data/config.json` (Dateirechte 600, nicht in Git).
+- Server bindet nur an 127.0.0.1; schreibende Anfragen von fremden Webseiten werden abgelehnt.

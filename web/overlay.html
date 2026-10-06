@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Overlay</title>
+<style>
+html,body{margin:0;background:transparent;overflow:hidden}
+#debug{font:14px system-ui;color:#fff;background:rgba(0,0,0,.5);padding:.4rem .6rem;display:inline-block}
+</style>
+</head>
+<body>
+<div id="debug" hidden></div>
+<script>
+"use strict";
+// Platzhalter: Die modulspezifische Darstellung folgt mit den einzelnen Overlays.
+// Keine Timer/Animationen im Leerlauf; WebSocket-Reconnect mit wachsendem Abstand.
+const id = location.pathname.split("/").pop();
+const debug = new URLSearchParams(location.search).has("debug");
+const box = document.getElementById("debug");
+let delay = 1000;
+function show(text) { if (debug) { box.hidden = false; box.textContent = text; } }
+async function init() {
+  const mod = await (await fetch(`/api/overlay/${id}`)).json();
+  show(`${mod.name} (${mod.type}) – wartet auf Ereignisse`);
+  connect();
+}
+function connect() {
+  const ws = new WebSocket(`ws://${location.host}/ws/overlay/${id}`);
+  ws.onopen = () => { delay = 1000; };
+  ws.onmessage = e => { /* Ereignisse werden pro Modul-Typ verarbeitet */ };
+  ws.onclose = () => { setTimeout(connect, delay); delay = Math.min(delay * 2, 30000); };
+}
+init().catch(e => show("Fehler: " + e.message));
+</script>
+</body>
+</html>

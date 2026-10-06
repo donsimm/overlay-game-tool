@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overlay Game Tool</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Overlay Game Tool</h1>
+  <nav>
+    <a href="#connections" data-tab="connections">Verbindungen</a>
+    <a href="#modules" data-tab="modules">Module</a>
+  </nav>
+</header>
+<div id="notice" hidden></div>
+<main>
+  <section id="tab-connections" hidden>
+    <div id="connections" class="cards"></div>
+  </section>
+  <section id="tab-modules" hidden>
+    <form id="new-module" class="row">
+      <select id="new-type" required></select>
+      <input id="new-name" placeholder="Name (optional)" maxlength="60">
+      <button type="submit">Modul erstellen</button>
+    </form>
+    <div id="modules" class="cards"></div>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
