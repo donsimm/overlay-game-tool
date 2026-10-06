@@ -111,7 +111,7 @@ class ModulePatch(BaseModel):
     height: int | None = None
     enabled: bool | None = None
     settings: dict[str, str] | None = None
-    layout: dict[str, dict[str, float | bool]] | None = None
+    layout: dict[str, dict[str, float | bool | str]] | None = None
 
 
 @app.get("/api/module-types")

@@ -9,20 +9,19 @@ export function render(root, mod) {
   const wrap = el("div", "welcome");
   wrap.style.setProperty("--accent", s.accent);
 
-  // Herz: Leuchten + Bild (Animation: Herzschlag)
-  const heart = el("img"); heart.src = "/assets/heart.webp"; heart.alt = "";
-  const heartEl = makeElement(wrap, "heart", el("div", "glow"), el("div", "a beat", ""));
-  heartEl.querySelector(".beat").append(heart);
+  // Jedes Element: Wrapper (.el, Layout) > .a (Animation) > Inhalt
+  const inA = node => { const a = el("div", "a"); a.append(node); return a; };
 
-  // Titel und Untertitel (Animation: leichtes Schweben)
-  const title = el("div", "a float", ""); title.append(el("h1", "", s.title));
-  makeElement(wrap, "title", title);
+  const heart = el("img"); heart.src = "/assets/heart.webp"; heart.alt = "";
+  makeElement(wrap, "heart", el("div", "glow"), inA(heart));
+
+  makeElement(wrap, "title", inA(el("h1", "", s.title)));
+
   const sub = el("p", "", s.subtitle);
   const dots = el("span", "dots");
   dots.append(...["", "", ""].map(() => el("i", "", ".")));
   sub.append(dots);
-  const subWrap = el("div", "a float late", ""); subWrap.append(sub);
-  makeElement(wrap, "subtitle", subWrap);
+  makeElement(wrap, "subtitle", inA(sub));
 
   root.replaceChildren(wrap);
   applyLayout(root, mod.layout);

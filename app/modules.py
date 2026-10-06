@@ -1,6 +1,13 @@
 """Modul-Typen und Verwaltung der angelegten Overlay-Module."""
 import secrets
 
+# Ruhige, dezente Textanimationen (Stärke per «intensity» regelbar)
+TEXT_ANIMATIONS = [
+    {"key": "float", "label": "Schweben"},
+    {"key": "breathe", "label": "Atmen"},
+    {"key": "sway", "label": "Wiegen"},
+]
+
 MODULE_TYPES = {
     "welcome": {
         "label": "Willkommen",
@@ -8,9 +15,16 @@ MODULE_TYPES = {
         "size": (1920, 1080),
         # Positionen in % der Fläche, ab Mitte (x, y); scale 1 = Standardgrösse; rotate in Grad
         "elements": [
-            {"key": "heart", "label": "Herz", "defaults": {"x": 0, "y": -12, "scale": 1, "rotate": -12, "anim": True}},
-            {"key": "title", "label": "Titel", "defaults": {"x": 0, "y": 8, "scale": 1, "rotate": -1.5, "anim": True}},
-            {"key": "subtitle", "label": "Untertitel", "defaults": {"x": 0, "y": 18, "scale": 1, "rotate": -1, "anim": True}},
+            {"key": "heart", "label": "Herz",
+             "animations": [{"key": "beat", "label": "Herzschlag"}],
+             "defaults": {"x": 0, "y": -12, "scale": 1, "rotate": -12, "anim": True, "visible": True,
+                          "z": 0, "intensity": 1, "animation": "beat"}},
+            {"key": "title", "label": "Titel", "animations": TEXT_ANIMATIONS,
+             "defaults": {"x": 0, "y": 8, "scale": 1, "rotate": -1.5, "anim": True, "visible": True,
+                          "z": 1, "intensity": 1, "animation": "float"}},
+            {"key": "subtitle", "label": "Untertitel", "animations": TEXT_ANIMATIONS,
+             "defaults": {"x": 0, "y": 18, "scale": 1, "rotate": -1, "anim": True, "visible": True,
+                          "z": 2, "intensity": 1, "animation": "float"}},
         ],
         "fields": [
             {"key": "title", "label": "Titel", "kind": "text", "default": "Herzlich Willkommen"},
@@ -31,7 +45,9 @@ def defaults(type_: str) -> dict:
     return {f["key"]: f["default"] for f in MODULE_TYPES[type_].get("fields", [])}
 
 
-LAYOUT_LIMITS = {"x": (-150, 150), "y": (-150, 150), "scale": (0.1, 6), "rotate": (-180, 180)}
+LAYOUT_LIMITS = {"x": (-150, 150), "y": (-150, 150), "scale": (0.1, 6), "rotate": (-180, 180),
+                 "intensity": (0, 2), "z": (0, 99)}
+BOOL_FIELDS = ("anim", "visible")
 
 
 def layout_defaults(type_: str) -> dict:
@@ -48,22 +64,27 @@ def merged_layout(mod: dict) -> dict:
 
 def validate_layout(type_: str, layout: dict) -> dict:
     """Prüft und bereinigt ein vom Editor gesendetes Layout."""
-    known = layout_defaults(type_)
+    elements = {e["key"]: e for e in MODULE_TYPES[type_].get("elements", [])}
     clean = {}
     for key, values in layout.items():
-        if key not in known:
+        if key not in elements:
             raise ValueError(f"Unbekanntes Element: {key}")
-        item = dict(known[key])
+        item = dict(elements[key]["defaults"])
+        allowed = {a["key"] for a in elements[key].get("animations", [])}
         for field, value in values.items():
-            if field == "anim":
+            if field in BOOL_FIELDS:
                 if not isinstance(value, bool):
-                    raise ValueError(f"{key}.anim muss wahr/falsch sein")
-                item["anim"] = value
+                    raise ValueError(f"{key}.{field} muss wahr/falsch sein")
+                item[field] = value
+            elif field == "animation":
+                if value not in allowed:
+                    raise ValueError(f"{key}: unbekannte Animation")
+                item[field] = value
             elif field in LAYOUT_LIMITS:
                 lo, hi = LAYOUT_LIMITS[field]
                 if isinstance(value, bool) or not isinstance(value, (int, float)) or not lo <= value <= hi:
                     raise ValueError(f"{key}.{field} muss zwischen {lo} und {hi} liegen")
-                item[field] = round(float(value), 3)
+                item[field] = int(round(value)) if field == "z" else round(float(value), 3)
             else:
                 raise ValueError(f"Unbekannte Eigenschaft: {field}")
         clean[key] = item

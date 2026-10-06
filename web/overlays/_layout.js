@@ -10,14 +10,20 @@ export function makeElement(parent, key, ...children) {
   return wrap;
 }
 
-export function applyLayout(root, layout) {
+export function applyLayout(root, layout, editing = false) {
   for (const wrap of root.querySelectorAll("[data-el]")) {
     const l = layout[wrap.dataset.el];
     if (!l) continue;
     wrap.style.left = `${50 + l.x}%`;
     wrap.style.top = `${50 + l.y}%`;
+    wrap.style.zIndex = l.z;
     wrap.style.setProperty("--s", l.scale);
     wrap.style.setProperty("--r", `${l.rotate}deg`);
+    wrap.style.setProperty("--i", l.intensity);   // Stärke der Animation
+    wrap.dataset.anim = l.animation;             // Art der Animation (CSS wählt anhand davon)
     wrap.classList.toggle("noanim", !l.anim);
+    // Ausgeblendete Ebenen: im Editor blass sichtbar (damit verschiebbar), sonst weg
+    wrap.style.display = l.visible || editing ? "" : "none";
+    wrap.style.opacity = !l.visible && editing ? 0.25 : "";
   }
 }

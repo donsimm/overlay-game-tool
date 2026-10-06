@@ -31,7 +31,7 @@ export function start(root, initialLayout) {
     selected = key; updateBox();
     if (notify) send({type: "select", key});
   }
-  const changed = () => { applyLayout(root, layout); updateBox(); send({type: "layout", layout}); };
+  const changed = () => { applyLayout(root, layout, true); updateBox(); send({type: "layout", layout}); };
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
   root.addEventListener("pointerdown", e => {
@@ -69,7 +69,7 @@ export function start(root, initialLayout) {
 
   addEventListener("message", e => {
     if (e.source !== parentWin || e.origin !== location.origin) return;
-    if (e.data?.type === "layout") { layout = e.data.layout; applyLayout(root, layout); updateBox(); }
+    if (e.data?.type === "layout") { layout = e.data.layout; applyLayout(root, layout, true); updateBox(); }
     if (e.data?.type === "select") select(e.data.key, false);
   });
   addEventListener("keydown", e => {
@@ -79,5 +79,6 @@ export function start(root, initialLayout) {
   // Grösse von Bild/Schrift ändert sich nach dem Laden
   root.addEventListener("load", updateBox, true);
   document.fonts.ready.then(updateBox);
+  applyLayout(root, layout, true);
   send({type: "ready"});
 }

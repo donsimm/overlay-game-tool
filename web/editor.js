@@ -18,7 +18,7 @@ function updateState() {
   el.textContent = dirty() ? "ungespeicherte Änderungen" : "gespeichert";
   el.className = "dim" + (dirty() ? " unsaved" : "");
 }
-function push() { toFrame({type: "layout", layout}); syncPanel(); updateState(); }
+function push() { toFrame({type: "layout", layout}); buildList(); syncPanel(); updateState(); }
 
 /* ---------- Bühne ---------- */
 function fit() {
@@ -36,19 +36,49 @@ document.querySelectorAll("[data-bg]").forEach(b => b.onclick = () => setBg(b.da
 $("#bgcolor").oninput = e => setBg(e.target.value);
 
 /* ---------- Panel ---------- */
+const labelOf = key => type.elements.find(e => e.key === key).label;
+const order = () => Object.keys(layout).sort((a, b) => layout[a].z - layout[b].z);  // hinten -> vorne
+function setOrder(keys) { keys.forEach((k, i) => layout[k].z = i); }   // z lückenlos neu vergeben
+
 function buildList() {
-  $("#els").replaceChildren(...type.elements.map(e => {
-    const b = Object.assign(document.createElement("button"), {textContent: e.label});
-    b.dataset.key = e.key; b.onclick = () => choose(e.key, true);
-    return b;
+  const ul = $("#layers");
+  const keys = order().reverse();   // oberste Ebene zuerst anzeigen
+  ul.replaceChildren(...keys.map((key, row) => {
+    const li = document.createElement("li");
+    li.draggable = true; li.dataset.key = key;
+    li.classList.toggle("active", key === selected);
+    const vis = Object.assign(document.createElement("input"), {type: "checkbox", checked: layout[key].visible, title: "Sichtbar"});
+    vis.onclick = e => e.stopPropagation();
+    vis.onchange = () => { layout[key].visible = vis.checked; push(); };
+    const btn = (txt, title, delta) => {
+      const b = Object.assign(document.createElement("button"), {textContent: txt, title});
+      b.disabled = row + delta < 0 || row + delta >= keys.length;
+      b.onclick = e => { e.stopPropagation(); const k = [...keys]; [k[row], k[row + delta]] = [k[row + delta], k[row]]; setOrder(k.reverse()); push(); };
+      return b;
+    };
+    li.append(Object.assign(document.createElement("span"), {className: "grip", textContent: "⠿"}), vis,
+      Object.assign(document.createElement("span"), {className: "name", textContent: labelOf(key)}),
+      btn("▲", "Nach vorne", -1), btn("▼", "Nach hinten", 1));
+    li.onclick = () => choose(key, true);
+    li.ondragstart = e => e.dataTransfer.setData("text/plain", key);
+    li.ondragover = e => { e.preventDefault(); li.classList.add("over"); };
+    li.ondragleave = () => li.classList.remove("over");
+    li.ondrop = e => {
+      e.preventDefault();
+      const from = e.dataTransfer.getData("text/plain");
+      if (!layout[from] || from === key) return buildList();
+      const k = keys.filter(x => x !== from);
+      k.splice(k.indexOf(key), 0, from);   // vor die Ziel-Zeile einfügen
+      setOrder(k.reverse()); push();
+    };
+    return li;
   }));
 }
 function choose(key, tell) {
   selected = key;
-  document.querySelectorAll("#els button").forEach(b => b.classList.toggle("active", b.dataset.key === key));
   $("#controls").hidden = !key; $("#hint").hidden = !!key;
   if (tell) toFrame({type: "select", key});
-  syncPanel();
+  buildList(); syncPanel();
 }
 function syncPanel() {
   const l = selected && layout[selected]; if (!l) return;
@@ -56,6 +86,10 @@ function syncPanel() {
   set("x", +l.x.toFixed(1)); set("y", +l.y.toFixed(1));
   set("scale", Math.round(l.scale * 100)); set("rotate", +l.rotate.toFixed(1));
   $("#anim").checked = l.anim;
+  set("intensity", Math.round(l.intensity * 100));
+  const kinds = type.elements.find(e => e.key === selected).animations || [];
+  $("#anim-kind-row").hidden = kinds.length < 2;
+  $("#anim-kind").replaceChildren(...kinds.map(k => Object.assign(document.createElement("option"), {value: k.key, textContent: k.label, selected: k.key === l.animation})));
 }
 const bind = (name, apply) => ["", "n"].forEach(sfx => $("#" + name + sfx).addEventListener("input", e => {
   const v = parseFloat(e.target.value); if (Number.isNaN(v) || !selected) return;
@@ -64,6 +98,8 @@ const bind = (name, apply) => ["", "n"].forEach(sfx => $("#" + name + sfx).addEv
 bind("x", (l, v) => l.x = v); bind("y", (l, v) => l.y = v);
 bind("scale", (l, v) => l.scale = Math.min(6, Math.max(0.1, v / 100)));
 bind("rotate", (l, v) => l.rotate = v);
+bind("intensity", (l, v) => l.intensity = Math.min(2, Math.max(0, v / 100)));
+$("#anim-kind").onchange = e => { layout[selected].animation = e.target.value; push(); };
 $("#anim").onchange = e => { layout[selected].anim = e.target.checked; push(); };
 $("#reset-el").onclick = () => { layout[selected] = clone(type.elements.find(e => e.key === selected).defaults); push(); };
 $("#reset-all").onclick = () => { if (confirm("Alle Elemente auf Standard zurücksetzen?")) { layout = defaults(); push(); } };
@@ -97,7 +133,7 @@ addEventListener("message", e => {
   if (e.source !== frame.contentWindow || e.origin !== location.origin) return;
   const m = e.data;
   if (m.type === "ready") { ready = true; toFrame({type: "layout", layout}); if (selected) toFrame({type: "select", key: selected}); }
-  if (m.type === "layout") { layout = m.layout; syncPanel(); updateState(); }
+  if (m.type === "layout") { layout = m.layout; syncPanel(); updateState(); }   // Ziehen in der Vorschau ändert nur x/y/Grösse, die Liste bleibt gleich
   if (m.type === "select") choose(m.key, false);
   if (m.type === "key") onKey(m.key, m.ctrl, m.shift, false);  // Tastendruck, während der Fokus in der Vorschau liegt
 });
@@ -108,6 +144,6 @@ addEventListener("message", e => {
   if (!type?.elements?.length) { $("#hint").textContent = "Dieses Overlay hat noch keine verschiebbaren Elemente."; return; }
   document.title = `Editor – ${mod.name}`; $("#title").textContent = mod.name;
   layout = clone(mod.layout); saved = clone(layout);
-  buildList(); fit(); updateState();
+  buildList(); fit(); updateState(); choose(null, false);
   frame.src = `/overlay/${id}?edit=1`;
 })();
