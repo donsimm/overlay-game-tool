@@ -1,0 +1,7 @@
+/* Be Vietnam Pro (SIL OFL 1.1, siehe OFL.txt) – Standardschrift aller Overlays */
+@font-face{font-family:"Be Vietnam Pro";font-weight:300;font-display:block;src:url(BeVietnamPro-Light.ttf) format("truetype")}
+@font-face{font-family:"Be Vietnam Pro";font-weight:400;font-display:block;src:url(BeVietnamPro-Regular.ttf) format("truetype")}
+@font-face{font-family:"Be Vietnam Pro";font-weight:500;font-display:block;src:url(BeVietnamPro-Medium.ttf) format("truetype")}
+@font-face{font-family:"Be Vietnam Pro";font-weight:600;font-display:block;src:url(BeVietnamPro-SemiBold.ttf) format("truetype")}
+@font-face{font-family:"Be Vietnam Pro";font-weight:700;font-display:block;src:url(BeVietnamPro-Bold.ttf) format("truetype")}
+@font-face{font-family:"Be Vietnam Pro";font-weight:800;font-display:block;src:url(BeVietnamPro-ExtraBold.ttf) format("truetype")}

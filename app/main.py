@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -109,11 +110,12 @@ class ModulePatch(BaseModel):
     width: int | None = None
     height: int | None = None
     enabled: bool | None = None
+    settings: dict[str, str] | None = None
 
 
 @app.get("/api/module-types")
 async def module_types():
-    return [{"type": k, "label": v["label"], "description": v["description"]}
+    return [{"type": k, "label": v["label"], "description": v["description"], "fields": v.get("fields", [])}
             for k, v in modules.MODULE_TYPES.items()]
 
 
@@ -146,6 +148,18 @@ async def patch_module(mid: str, body: ModulePatch):
             raise HTTPException(400, f"{k} muss zwischen 16 und 8192 liegen")
     if "name" in changes:
         changes["name"] = changes["name"].strip() or mod["name"]
+    if "settings" in changes:
+        fields = {f["key"]: f for f in modules.MODULE_TYPES[mod["type"]].get("fields", [])}
+        clean = dict(mod["settings"])
+        for k, v in changes["settings"].items():
+            if k not in fields:
+                raise HTTPException(400, f"Unbekannte Einstellung: {k}")
+            if len(v) > 120:
+                raise HTTPException(400, f"{k}: maximal 120 Zeichen")
+            if fields[k]["kind"] == "color" and not re.fullmatch(r"#[0-9a-fA-F]{6}", v):
+                raise HTTPException(400, f"{k}: ungültige Farbe")
+            clean[k] = v
+        changes["settings"] = clean
     mod.update(changes)
     store.save(data)
     return mod
@@ -172,7 +186,7 @@ async def overlay_config(mid: str):
     mod = next((m for m in store.load()["modules"] if m["id"] == mid), None)
     if not mod:
         raise HTTPException(404, "Modul nicht gefunden")
-    return mod
+    return {**mod, "settings": {**modules.defaults(mod["type"]), **mod["settings"]}}
 
 
 class Hub:

@@ -26,6 +26,7 @@ Unter «Module» ein Modul erstellen, die URL kopieren und in OBS als Browserque
 
 ## Ressourcen und Sicherheit
 
+- Schrift: Be Vietnam Pro (lokal in `web/fonts`, Lizenz SIL OFL 1.1) ist die Standardschrift aller Overlays.
 - Ein Prozess, keine Hintergrundtasks im Leerlauf, Konfiguration im Speicher gecacht, keine Netzwerkabfragen beim Öffnen der Oberfläche.
 - Zugangsdaten und Tokens liegen in `data/config.json` (Dateirechte 600, nicht in Git).
 - Server bindet nur an 127.0.0.1; schreibende Anfragen von fremden Webseiten werden abgelehnt.

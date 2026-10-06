@@ -69,7 +69,12 @@ function moduleCard(m) {
   const name = h("input", {value: m.name, maxLength: 60});
   const w = h("input", {type: "number", value: m.width, min: 16, max: 8192});
   const hh = h("input", {type: "number", value: m.height, min: 16, max: 8192});
-  const label = types.find(t => t.type === m.type)?.label || m.type;
+  const type = types.find(t => t.type === m.type);
+  const label = type?.label || m.type;
+  const inputs = (type?.fields || []).map(f => {
+    const input = h("input", {type: f.kind === "color" ? "color" : "text", value: m.settings[f.key] ?? f.default, maxLength: 120});
+    return {key: f.key, input, row: h("label", {className: "field"}, h("span", {className: "dim", textContent: f.label}), input)};
+  });
   return h("div", {className: "card"},
     h("h2", {}, m.name, h("span", {className: "badge", textContent: label}),
       m.enabled ? null : h("span", {className: "badge", textContent: "deaktiviert"})),
@@ -79,9 +84,11 @@ function moduleCard(m) {
       })}),
       h("a", {href: url + "?debug=1", target: "_blank", textContent: "Vorschau"})),
     h("p", {className: "dim", textContent: `In OBS Breite ${m.width} und Höhe ${m.height} einstellen.`}),
+    inputs.length ? h("div", {className: "row"}, ...inputs.map(i => i.row)) : null,
     h("div", {className: "row"}, name, w, "×", hh,
       h("button", {textContent: "Speichern", onclick: guard(async () => {
-        await api(`/api/modules/${m.id}`, "PATCH", {name: name.value, width: +w.value, height: +hh.value});
+        await api(`/api/modules/${m.id}`, "PATCH", {name: name.value, width: +w.value, height: +hh.value,
+          settings: Object.fromEntries(inputs.map(i => [i.key, i.input.value]))});
         notice("Gespeichert."); await loadModules();
       })}),
       h("button", {textContent: m.enabled ? "Deaktivieren" : "Aktivieren", onclick: guard(async () => {

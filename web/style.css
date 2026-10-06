@@ -29,3 +29,4 @@ code{background:#111317;padding:.1rem .4rem;border-radius:4px;word-break:break-a
 details{margin-top:.6rem}
 summary{cursor:pointer;color:var(--dim)}
 a{color:#a99bff}
+.field{display:flex;flex-direction:column;gap:.2rem}input[type=color]{padding:0;height:2.1rem;width:3.5rem}
