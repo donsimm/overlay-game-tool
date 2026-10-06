@@ -15,6 +15,7 @@ TEXT_ANIMATIONS = MOTION_ANIMATIONS + [
 ]
 ITEM_ANIMATIONS = {"text": TEXT_ANIMATIONS, "image": MOTION_ANIMATIONS}
 TEXT_STYLES = [{"key": "comic", "label": "Comic (Rand + Schatten)"},
+               {"key": "thick", "label": "Comic dick (dicker Rand)"},
                {"key": "plain", "label": "Schlicht (leichter Rand)"},
                {"key": "none", "label": "Ohne"}]
 # Layout-Standard für frei hinzugefügte Ebenen (Texte/Bilder)
@@ -53,6 +54,8 @@ MODULE_TYPES = {
             {"key": "title", "label": "Titel", "kind": "text", "default": "Herzlich Willkommen"},
             {"key": "subtitle", "label": "Untertitel", "kind": "text", "default": "Der Stream geht gleich los"},
             {"key": "accent", "label": "Leuchtfarbe", "kind": "color", "default": "#ff4d6d"},
+            {"key": "style", "label": "Textstil", "kind": "select", "default": "comic",
+             "options": [{"value": o["key"], "label": o["label"]} for o in TEXT_STYLES]},
         ],
     },
     "chat": {

@@ -6,7 +6,7 @@
   opacity:0;transform:translateY(.5em);transition:opacity .35s ease,transform .35s ease}
 .msg.in{opacity:1;transform:none}
 .msg.out{opacity:0;transition:opacity .4s ease}
-.chatbox .txt-comic{filter:none}   /* Chat: nur Rand, kein Filter (animierte Emotes würden sonst ständig neu gezeichnet) */
+.chatbox .txt-comic,.chatbox .txt-thick{filter:none}   /* Chat: nur Rand, kein Filter (animierte Emotes würden sonst ständig neu gezeichnet) */
 .msg .name{font-weight:800}
 .msg .badge{height:1.1em;width:auto;vertical-align:-.2em;margin-right:.2em}
 .msg .emote{height:1.8em;width:auto;vertical-align:middle;margin:-.3em .04em}

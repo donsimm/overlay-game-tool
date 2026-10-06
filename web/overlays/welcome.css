@@ -8,10 +8,12 @@
 /* Comic-Look (leicht): runder schwarzer Rand (Ring aus Schatten, keine spitzen Ecken),
    Schatten wird aus der fertigen Rand-Form berechnet und ist dadurch ebenfalls rund. */
 .welcome h1,.welcome p{margin:0;color:#fff;white-space:nowrap;text-align:center}
-.welcome h1{font-size:9vh;font-weight:800;letter-spacing:.01em;
+.welcome h1{font-size:9vh;font-weight:800;letter-spacing:.01em}
+.welcome h1.wl-comic{
   text-shadow:0.600vh 0.000vh 0 #000,0.580vh 0.155vh 0 #000,0.520vh 0.300vh 0 #000,0.424vh 0.424vh 0 #000,0.300vh 0.520vh 0 #000,0.155vh 0.580vh 0 #000,0.000vh 0.600vh 0 #000,-0.155vh 0.580vh 0 #000,-0.300vh 0.520vh 0 #000,-0.424vh 0.424vh 0 #000,-0.520vh 0.300vh 0 #000,-0.580vh 0.155vh 0 #000,-0.600vh 0.000vh 0 #000,-0.580vh -0.155vh 0 #000,-0.520vh -0.300vh 0 #000,-0.424vh -0.424vh 0 #000,-0.300vh -0.520vh 0 #000,-0.155vh -0.580vh 0 #000,-0.000vh -0.600vh 0 #000,0.155vh -0.580vh 0 #000,0.300vh -0.520vh 0 #000,0.424vh -0.424vh 0 #000,0.520vh -0.300vh 0 #000,0.580vh -0.155vh 0 #000;
   filter:drop-shadow(.7vh .8vh 0 rgba(0,0,0,.4)) drop-shadow(.4vh .6vh 1.2vh rgba(0,0,0,.25))}
-.welcome p{font-size:4.4vh;font-weight:700;
+.welcome p{font-size:4.4vh;font-weight:700}
+.welcome p.wl-comic{
   text-shadow:0.450vh 0.000vh 0 #000,0.435vh 0.116vh 0 #000,0.390vh 0.225vh 0 #000,0.318vh 0.318vh 0 #000,0.225vh 0.390vh 0 #000,0.116vh 0.435vh 0 #000,0.000vh 0.450vh 0 #000,-0.116vh 0.435vh 0 #000,-0.225vh 0.390vh 0 #000,-0.318vh 0.318vh 0 #000,-0.390vh 0.225vh 0 #000,-0.435vh 0.116vh 0 #000,-0.450vh 0.000vh 0 #000,-0.435vh -0.116vh 0 #000,-0.390vh -0.225vh 0 #000,-0.318vh -0.318vh 0 #000,-0.225vh -0.390vh 0 #000,-0.116vh -0.435vh 0 #000,-0.000vh -0.450vh 0 #000,0.116vh -0.435vh 0 #000,0.225vh -0.390vh 0 #000,0.318vh -0.318vh 0 #000,0.390vh -0.225vh 0 #000,0.435vh -0.116vh 0 #000;
   filter:drop-shadow(.5vh .6vh 0 rgba(0,0,0,.4)) drop-shadow(.3vh .5vh 1vh rgba(0,0,0,.25))}
 [data-anim^="typewriter"] .dots i{animation:none!important}
