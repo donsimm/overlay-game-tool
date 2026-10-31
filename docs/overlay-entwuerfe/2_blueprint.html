@@ -1,0 +1,59 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Entwurf 2 Blueprint</title><link rel="stylesheet" href="_basis.css"><style>
+:root{--l:rgba(255,255,255,.92);--bg:rgba(10,52,110,.86)}
+body{background:#0c3f84}
+.scene{opacity:.35;mix-blend-mode:screen}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.15) 1px,transparent 1px);background-size:20px 20px,20px 20px,100px 100px,100px 100px}
+.frame{position:absolute;inset:26px;border:3px solid var(--l)}
+.frame::after{content:"";position:absolute;inset:8px;border:1px solid var(--l)}
+.box{position:absolute;border:3px solid var(--l);background:var(--bg)}
+.box::after{content:"";position:absolute;inset:7px;border:1px solid var(--l)}
+.cross{position:absolute;width:30px;height:30px}
+.cross::before,.cross::after{content:"";position:absolute;background:var(--l)}
+.cross::before{left:14px;top:0;width:2px;height:30px}.cross::after{top:14px;left:0;height:2px;width:30px}
+.dim{position:absolute;height:2px;background:var(--l)}
+.dim::before,.dim::after{content:"";position:absolute;top:-9px;width:2px;height:20px;background:var(--l)}
+.dim::before{left:0}.dim::after{right:0}
+.dim span{position:absolute;left:50%;top:-34px;transform:translateX(-50%);background:var(--bg);padding:0 12px;font-size:19px;letter-spacing:.12em;white-space:nowrap;font-weight:500}
+.vdim{position:absolute;width:2px;background:var(--l)}
+.vdim::before,.vdim::after{content:"";position:absolute;left:-9px;height:2px;width:20px;background:var(--l)}
+.vdim::before{top:0}.vdim::after{bottom:0}
+h1{font-size:80px;line-height:1;font-weight:800;letter-spacing:.06em;text-transform:uppercase;text-align:center}
+.sub{font-size:27px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;text-align:center;margin-top:20px}
+.lab{font-size:16px;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+.circ{position:absolute;width:46px;height:46px;border:2px solid var(--l);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;background:var(--bg)}
+table{border-collapse:collapse;width:100%;font-size:23px}
+th{font-size:15px;letter-spacing:.2em;text-align:left;font-weight:600;border-bottom:2px solid var(--l);padding:8px 10px}
+td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,.4);vertical-align:top;line-height:1.3}
+td:first-child,th:first-child{width:46px;border-right:1px solid var(--l);text-align:center;padding-left:0;padding-right:0}
+td b{font-weight:700;white-space:nowrap}
+.title-block{position:absolute;right:56px;bottom:56px;width:820px;border:3px solid var(--l);background:var(--bg);display:grid;grid-template-columns:1fr 1fr 1fr}
+.title-block div{padding:12px 18px;border-right:1px solid var(--l)}.title-block div:last-child{border:0}
+.title-block small{display:block;font-size:13px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;opacity:.85}
+.title-block b{font-size:30px;font-weight:700}
+.cam{position:absolute;border:3px solid var(--l);background:rgba(0,0,0,.18)}
+</style></head><body>
+<div class="scene"></div><div class="grid"></div><div class="frame"></div>
+<div class="cross" style="left:11px;top:11px"></div><div class="cross" style="right:11px;top:11px"></div><div class="cross" style="left:11px;bottom:11px"></div><div class="cross" style="right:11px;bottom:11px"></div>
+<div class="abs lab" style="left:64px;top:52px">Zeichnung Nr. 001 · Stream-Start</div>
+<div class="abs lab" style="right:64px;top:52px">Massstab 1 : 1</div>
+
+<div class="box" style="left:560px;top:300px;width:820px;height:380px;padding:52px 30px"><h1>Herzlich Willkommen</h1><div class="sub">Der Stream geht gleich los</div></div>
+<div class="dim" style="left:560px;top:258px;width:820px"><span>B = 820</span></div>
+<div class="vdim" style="left:516px;top:300px;height:380px"></div>
+<div class="circ" style="left:1358px;top:276px">A</div>
+
+<div class="cam" style="left:64px;top:600px;width:430px;height:242px"></div>
+<div class="circ" style="left:480px;top:586px">K</div>
+<div class="abs lab" style="left:72px;top:860px">Kamera · Ansicht vorn</div>
+
+<div class="box" style="right:64px;top:130px;width:470px;height:520px;padding:22px 20px"><div class="lab" style="margin:0 0 10px 6px">Tabelle 1 · Chat</div>
+ <table><tr><th>Nr</th><th>Name</th><th>Nachricht</th></tr>
+ <tr><td>1</td><td><b style="color:#b8ff8f">Mira</b></td><td>Hallo zusammen!</td></tr>
+ <tr><td>2</td><td><b style="color:#9fd0ff">Jonas</b></td><td>Das war stark <i class="emo"></i></td></tr>
+ <tr><td>3</td><td><b style="color:#ffb3d6">Luca_91</b></td><td>Wann geht es los?</td></tr>
+ <tr><td>4</td><td><b style="color:#ffd08a">Aylin</b></td><td>@Mira willkommen <i class="emo"></i></td></tr>
+ <tr><td>5</td><td><b style="color:#dcc8ff">Tom</b></td><td>Bin bereit!</td></tr></table></div>
+<div class="circ" style="right:44px;top:112px">C</div>
+
+<div class="title-block"><div><small>Letzter Follow</small><b>Mira</b></div><div><small>Letzter Sub</small><b>Jonas</b></div><div><small>Blatt</small><b>1 / 1</b></div></div>
+</body></html>

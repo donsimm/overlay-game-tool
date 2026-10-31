@@ -1,0 +1,56 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Entwurf 1 HUD</title><link rel="stylesheet" href="_basis.css"><style>
+:root{--c:#35e0ff;--bg:rgba(6,14,26,.82);--a:#ffb020}
+body{background:#050810}
+.scene{opacity:.55}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(53,224,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(53,224,255,.07) 1px,transparent 1px);background-size:60px 60px}
+.scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 4px)}
+.br{position:absolute;width:110px;height:110px;border:0 solid var(--c);filter:drop-shadow(0 0 6px var(--c))}
+.br.tl{left:28px;top:28px;border-left-width:4px;border-top-width:4px}.br.tr{right:28px;top:28px;border-right-width:4px;border-top-width:4px}
+.br.bl{left:28px;bottom:28px;border-left-width:4px;border-bottom-width:4px}.br.brr{right:28px;bottom:28px;border-right-width:4px;border-bottom-width:4px}
+.cut{position:absolute;background:var(--c);clip-path:polygon(28px 0,100% 0,100% calc(100% - 28px),calc(100% - 28px) 100%,0 100%,0 28px);filter:drop-shadow(0 0 10px rgba(53,224,255,.55))}
+.cut::before{content:"";position:absolute;inset:2px;background:var(--bg);clip-path:polygon(27px 0,100% 0,100% calc(100% - 27px),calc(100% - 27px) 100%,0 100%,0 27px)}
+.cut>.in{position:absolute;inset:0;padding:26px 34px}
+.tag{font-size:19px;letter-spacing:.22em;text-transform:uppercase;color:var(--c);font-weight:600}
+.led{display:inline-block;width:12px;height:12px;border-radius:50%;background:#3dff7a;box-shadow:0 0 10px #3dff7a;margin-right:12px}
+h1{font-size:88px;line-height:1;font-weight:800;letter-spacing:.07em;text-transform:uppercase;text-shadow:0 0 28px rgba(53,224,255,.55)}
+.sub{font-size:30px;letter-spacing:.14em;text-transform:uppercase;color:var(--c);font-weight:500;margin-top:22px}
+.ticks{height:14px;margin-top:30px;background:repeating-linear-gradient(90deg,var(--c) 0 2px,transparent 2px 14px);opacity:.7}
+.bar{height:8px;background:rgba(53,224,255,.2);margin-top:20px;position:relative}.bar i{position:absolute;left:0;top:0;bottom:0;width:68%;background:var(--c);box-shadow:0 0 12px var(--c)}
+.msg{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid rgba(53,224,255,.18);font-size:25px;line-height:1.3}
+.msg:last-child{border:0}.msg b{font-weight:700;white-space:nowrap}.msg span{color:#e8f6ff}
+.msg::before{content:"";width:4px;background:var(--c);flex:none;box-shadow:0 0 8px var(--c)}
+.pill{display:flex;align-items:center;gap:16px;font-size:26px}
+.pill small{font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--c);display:block;font-weight:600}
+.pill b{font-weight:700;font-size:30px}
+.cam{position:absolute;border:2px solid var(--c);box-shadow:0 0 14px rgba(53,224,255,.5),inset 0 0 40px rgba(0,0,0,.4);background:rgba(0,0,0,.25)}
+.cam .lab{position:absolute;left:0;top:-34px;font-size:16px;letter-spacing:.22em;color:var(--c);font-weight:600}
+.cam .rec{position:absolute;right:16px;top:14px;font-size:15px;letter-spacing:.18em;color:#ff5470;font-weight:700}
+</style></head><body>
+<div class="scene"></div><div class="grid"></div><div class="scan"></div>
+<div class="br tl"></div><div class="br tr"></div><div class="br bl"></div><div class="br brr"></div>
+<div class="abs tag" style="left:160px;top:44px"><span class="led"></span>System online · Stream startet</div>
+<div class="abs tag" style="right:160px;top:44px">Kanal // Streamer</div>
+
+<div class="cut" style="left:540px;top:250px;width:840px;height:450px"><div class="in">
+  <div class="tag">&gt; Willkommen</div>
+  <h1 style="margin-top:22px">Herzlich Willkommen</h1>
+  <div class="sub">Der Stream geht gleich los</div>
+  <div class="ticks"></div><div class="bar"><i></i></div>
+</div></div>
+
+<div class="cam" style="left:56px;top:640px;width:420px;height:236px"><div class="lab">KAMERA</div><div class="rec">● LIVE</div></div>
+
+<div class="cut" style="right:56px;top:150px;width:460px;height:520px"><div class="in" style="padding:22px 26px">
+  <div class="tag" style="margin-bottom:8px">Chat // Live</div>
+  <div class="msg"><div><b style="color:#9bf56a">Mira</b> <span>Hallo zusammen!</span></div></div>
+  <div class="msg"><div><b style="color:#5ab0ff">Jonas</b> <span>Das war stark <i class="emo"></i></span></div></div>
+  <div class="msg"><div><b style="color:#ff7ab8">Luca_91</b> <span>Wann geht es los?</span></div></div>
+  <div class="msg"><div><b style="color:#ffb454">Aylin</b> <span>@Mira willkommen im Chat <i class="emo"></i></span></div></div>
+  <div class="msg"><div><b style="color:#c9a6ff">Tom</b> <span>Bin bereit!</span></div></div>
+</div></div>
+
+<div class="cut" style="left:56px;bottom:40px;width:700px;height:92px"><div class="in" style="padding:0 30px;display:flex;align-items:center;gap:60px">
+  <div class="pill"><div><small>Letzter Follow</small><b>Mira</b></div></div>
+  <div class="pill"><div><small>Letzter Sub</small><b style="color:var(--a)">Jonas</b></div></div>
+</div></div>
+</body></html>

@@ -1,0 +1,13 @@
+@font-face{font-family:"Be Vietnam Pro";font-weight:400;src:url(../../web/fonts/BeVietnamPro-Regular.ttf)}
+@font-face{font-family:"Be Vietnam Pro";font-weight:500;src:url(../../web/fonts/BeVietnamPro-Medium.ttf)}
+@font-face{font-family:"Be Vietnam Pro";font-weight:600;src:url(../../web/fonts/BeVietnamPro-SemiBold.ttf)}
+@font-face{font-family:"Be Vietnam Pro";font-weight:700;src:url(../../web/fonts/BeVietnamPro-Bold.ttf)}
+@font-face{font-family:"Be Vietnam Pro";font-weight:800;src:url(../../web/fonts/BeVietnamPro-ExtraBold.ttf)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1920px;height:1080px;overflow:hidden;position:relative;font-family:"Be Vietnam Pro",sans-serif;color:#fff}
+.abs{position:absolute}
+.emo{display:inline-block;width:.95em;height:.95em;border-radius:50%;background:#ffd23f;border:2px solid #000;vertical-align:-.12em;margin:0 .1em;position:relative}
+.emo::before,.emo::after{content:"";position:absolute;top:28%;width:12%;height:22%;background:#000;border-radius:50%}
+.emo::before{left:30%}.emo::after{right:30%}
+/* Szenenhintergrund (Spielbild-Ersatz), damit man die Transparenz des Overlays erkennt */
+.scene{position:absolute;inset:0;background:radial-gradient(900px 600px at 25% 30%,#3b5a8a 0,transparent 60%),radial-gradient(800px 700px at 80% 70%,#7a3b6e 0,transparent 60%),#1b2433}

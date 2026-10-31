@@ -1,0 +1,47 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Entwurf 3 Terminal</title><link rel="stylesheet" href="_basis.css"><style>
+:root{--g:#4ade80;--a:#fbbf24;--bg:rgba(13,17,23,.9);--l:#30363d}
+body{background:#0a0d12}
+.scene{opacity:.5}
+.win{position:absolute;background:var(--bg);border:2px solid var(--l);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 0 1px #000;overflow:hidden}
+.bar{height:46px;background:#161b22;border-bottom:2px solid var(--l);display:flex;align-items:center;gap:10px;padding:0 18px;font-size:18px;color:#9aa4b2;font-weight:500}
+.bar i{width:15px;height:15px;border-radius:50%;display:inline-block}
+.bar .t{margin-left:12px;letter-spacing:.04em}
+.body{padding:26px 34px}
+.ln{font-size:28px;line-height:1.5;color:#9aa4b2;font-weight:500}
+.ln .p{color:var(--g);font-weight:700}
+.big{font-size:84px;line-height:1.05;font-weight:800;color:#fff;margin:14px 0 6px;letter-spacing:.01em}
+.big .p{color:var(--g)}
+.sub{font-size:38px;font-weight:600;color:#e6edf3}
+.cur{display:inline-block;width:.5em;height:.95em;background:var(--g);vertical-align:-.12em;margin-left:.12em}
+.ok{color:var(--g);font-weight:700}.wt{color:var(--a);font-weight:700}
+.chat .ln{font-size:23px;line-height:1.42;color:#cdd6e0}
+.chat .ts{color:#6e7681}.chat b{font-weight:700}
+.cam{position:absolute;border:2px solid var(--l);border-radius:14px;background:rgba(0,0,0,.25);overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.cam .bar{height:38px;font-size:15px}
+.status{position:absolute;left:0;right:0;bottom:0;height:54px;background:#161b22;border-top:2px solid var(--l);display:flex;align-items:stretch;font-size:21px;font-weight:600}
+.status div{display:flex;align-items:center;padding:0 26px;gap:10px;border-right:2px solid var(--l)}
+.status .g{background:var(--g);color:#06210f;font-weight:800}.status .a{background:var(--a);color:#2a1d00;font-weight:800}
+.status small{color:#6e7681;font-weight:600;letter-spacing:.14em;font-size:14px;text-transform:uppercase}
+.status .sp{flex:1;border:0}
+</style></head><body>
+<div class="scene"></div>
+<div class="win" style="left:540px;top:220px;width:840px;height:470px"><div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">stream.sh — willkommen</span></div>
+ <div class="body"><div class="ln"><span class="p">$</span> stream --start</div>
+  <div class="big"><span class="p">&gt;</span> Herzlich Willkommen</div>
+  <div class="sub">Der Stream geht gleich los<span class="cur"></span></div>
+  <div style="height:24px"></div>
+  <div class="ln" style="font-size:23px"><span class="ok">[ OK ]</span> Kamera &nbsp;&nbsp;<span class="ok">[ OK ]</span> Mikrofon &nbsp;&nbsp;<span class="wt">[ .. ]</span> Verbindung</div></div></div>
+
+<div class="cam" style="left:56px;top:600px;width:430px;height:290px"><div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">kamera</span></div></div>
+
+<div class="win chat" style="right:56px;top:110px;width:470px;height:470px"><div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">chat.log — live</span></div>
+ <div class="body" style="padding:18px 24px">
+  <div class="ln"><span class="ts">[20:14]</span> <b style="color:#9bf56a">Mira</b> Hallo zusammen!</div>
+  <div class="ln"><span class="ts">[20:14]</span> <b style="color:#5ab0ff">Jonas</b> Das war stark <i class="emo"></i></div>
+  <div class="ln"><span class="ts">[20:15]</span> <b style="color:#ff7ab8">Luca_91</b> Wann geht es los?</div>
+  <div class="ln"><span class="ts">[20:15]</span> <b style="color:#ffb454">Aylin</b> @Mira willkommen im Chat <i class="emo"></i></div>
+  <div class="ln"><span class="ts">[20:16]</span> <b style="color:#c9a6ff">Tom</b> Bin bereit!</div>
+  <div class="ln" style="color:var(--a)"><span class="ts">[20:16]</span> ★ Jonas hat Tier 1 abonniert</div></div></div>
+
+<div class="status"><div class="g">● ONLINE</div><div><small>Letzter Follow</small>Mira</div><div><small>Letzter Sub</small><span style="color:var(--a)">Jonas</span></div><div class="sp"></div><div><small>Stream</small>startet gleich</div><div class="a">LIVE IN 05:00</div></div>
+</body></html>
