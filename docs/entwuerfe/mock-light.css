@@ -1,0 +1,13 @@
+:root{--outer:#e6e8ee;--bg:#f4f5f8;--p1:#ffffff;--p2:#f0f1f6;--p3:#e8eaf1;--deep:#e9ebf1;--sunk:#ffffff;--stage:#dde0e8;--ruler:#eceef3;
+--line:#d6d9e2;--text:#1c1f26;--dim:#667085;--acc:#6c4dff;--acc2:#5a3ee0;--selbg:#ece8ff;--track:#cdd1db;--chkA:#e4e4e4;--chkB:#f6f6f6;--shade:#2a2f4a33;
+--ok:#1f9d3a;--warn:#d98a00;--err:#d92d20}
+.title{background:#eceef4}
+.win{border-color:#c4c8d3}
+.btn.pri{color:#fff}
+.chip.on{color:var(--acc2)}
+.sl b{border-color:var(--acc)}
+.sw::after{box-shadow:0 1px 2px #0003}
+.mod .ic{color:#fff}
+.canvas{outline-color:#bfc4d0}
+.mod.on{outline-color:var(--acc)}
+.status{background:#eceef4}

@@ -1,15 +1,15 @@
-:root{--bg:#14161a;--p1:#1b1e24;--p2:#171a1f;--p3:#22262d;--line:#2c3038;--text:#e6e8eb;--dim:#9aa1ab;--acc:#7c5cff;--acc2:#a99bff;--ok:#3fb950;--warn:#f0b429;--err:#f85149}
+:root{--outer:#0c0d10;--deep:#101216;--sunk:#111317;--stage:#0f1114;--ruler:#15171b;--selbg:#25203f;--track:#3b4049;--chkA:#2a2d33;--chkB:#33363d;--shade:#000a;--bg:#14161a;--p1:#1b1e24;--p2:#171a1f;--p3:#22262d;--line:#2c3038;--text:#e6e8eb;--dim:#9aa1ab;--acc:#7c5cff;--acc2:#a99bff;--ok:#3fb950;--warn:#f0b429;--err:#f85149}
 *{box-sizing:border-box;margin:0;padding:0}
-body{width:1500px;height:900px;background:#0c0d10;font:14px/1.4 "Inter","Noto Sans","DejaVu Sans",system-ui,sans-serif;color:var(--text);overflow:hidden}
+body{width:1500px;height:900px;background:var(--outer);font:14px/1.4 "Inter","Noto Sans","DejaVu Sans",system-ui,sans-serif;color:var(--text);overflow:hidden}
 .win{width:1500px;height:900px;background:var(--bg);border:1px solid #3a3f49;display:flex;flex-direction:column}
-.title{height:36px;background:#101216;display:flex;align-items:center;padding:0 12px;gap:10px;border-bottom:1px solid var(--line);font-size:13px;color:var(--dim)}
+.title{height:36px;background:var(--deep);display:flex;align-items:center;padding:0 12px;gap:10px;border-bottom:1px solid var(--line);font-size:13px;color:var(--dim)}
 .title .logo{width:16px;height:16px;border-radius:5px;background:linear-gradient(135deg,#ff4d6d,#7c5cff)}
-.title .btns{margin-left:auto;display:flex;gap:18px;color:#8a909b}
+.title .btns{margin-left:auto;display:flex;gap:18px;color:var(--dim)}
 .menu{height:32px;background:var(--p2);display:flex;align-items:center;gap:4px;padding:0 8px;border-bottom:1px solid var(--line);font-size:13px}
 .menu span{padding:3px 10px;border-radius:5px;color:var(--dim)}
 .menu span.on{background:var(--p3);color:var(--text)}
 .body{flex:1;display:flex;min-height:0}
-.status{height:28px;background:#101216;border-top:1px solid var(--line);display:flex;align-items:center;gap:20px;padding:0 14px;font-size:12px;color:var(--dim)}
+.status{height:28px;background:var(--deep);border-top:1px solid var(--line);display:flex;align-items:center;gap:20px;padding:0 14px;font-size:12px;color:var(--dim)}
 .status b{color:var(--text);font-weight:500}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--dim);margin-right:6px}
 .dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.err{background:var(--err)}
@@ -21,32 +21,32 @@ body{width:1500px;height:900px;background:#0c0d10;font:14px/1.4 "Inter","Noto Sa
 .btn.sm{padding:1px 7px;font-size:12px}
 .btn.dng{color:var(--err)}
 .chip{display:inline-block;border:1px solid var(--line);background:var(--p2);border-radius:99px;padding:2px 10px;font-size:12px;color:var(--dim)}
-.chip.on{border-color:var(--acc);background:#25203f;color:var(--acc2)}
+.chip.on{border-color:var(--acc);background:var(--selbg);color:var(--acc2)}
 .mod{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;margin:2px 8px}
-.mod.on{background:#25203f;outline:1px solid var(--acc)}
+.mod.on{background:var(--selbg);outline:1px solid var(--acc)}
 .mod .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--p3);color:#fff}
 .mod .nm{font-weight:600}.mod .sub{font-size:11.5px;color:var(--dim)}
 .mod .r{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--dim)}
-.sw{width:30px;height:17px;border-radius:99px;background:#3b4049;position:relative;display:inline-block;vertical-align:middle}
+.sw{width:30px;height:17px;border-radius:99px;background:var(--track);position:relative;display:inline-block;vertical-align:middle}
 .sw::after{content:"";position:absolute;left:2px;top:2px;width:13px;height:13px;border-radius:50%;background:#fff}
 .sw.on{background:var(--acc)}.sw.on::after{left:15px}
 .field{padding:6px 14px}
 .field label{display:block;font-size:11.5px;color:var(--dim);margin-bottom:3px}
-.inp{background:#111317;border:1px solid var(--line);border-radius:6px;padding:5px 9px;font-size:13px;color:var(--text);min-height:28px}
+.inp{background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:5px 9px;font-size:13px;color:var(--text);min-height:28px}
 .dd::after{content:"▾";float:right;color:var(--dim)}
 .row{display:flex;gap:8px;align-items:center}
 .ctl{display:grid;grid-template-columns:78px 1fr 54px;gap:8px;align-items:center;padding:4px 14px;font-size:13px}
 .ctl span{color:var(--dim)}
-.ctl em{font-style:normal;text-align:right;background:#111317;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px}
-.sl{height:4px;border-radius:2px;background:#3b4049;position:relative}
+.ctl em{font-style:normal;text-align:right;background:var(--sunk);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px}
+.sl{height:4px;border-radius:2px;background:var(--track);position:relative}
 .sl i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--acc)}
 .sl b{position:absolute;top:-5px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;border:2px solid var(--acc)}
 .layer{display:flex;align-items:center;gap:9px;padding:6px 10px;margin:2px 8px;border-radius:7px;background:var(--p2);border:1px solid var(--line);font-size:13px}
-.layer.on{border-color:var(--acc);background:#25203f}
-.layer .g{color:#6b717c}.layer .k{width:18px;text-align:center;color:var(--acc2);font-size:12px}
+.layer.on{border-color:var(--acc);background:var(--selbg)}
+.layer .g{color:var(--dim)}.layer .k{width:18px;text-align:center;color:var(--acc2);font-size:12px}
 .layer .eye{margin-left:auto;color:var(--dim)}
-.canvaswrap{flex:1;min-width:0;min-height:0;position:relative;background:#0f1114;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.canvas{position:relative;background-color:#2a2d33;background-image:linear-gradient(45deg,#33363d 25%,transparent 25%,transparent 75%,#33363d 75%),linear-gradient(45deg,#33363d 25%,transparent 25%,transparent 75%,#33363d 75%);background-size:24px 24px;background-position:0 0,12px 12px;outline:1px solid #3a3f49}
+.canvaswrap{flex:1;min-width:0;min-height:0;position:relative;background:var(--stage);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.canvas{position:relative;background-color:var(--chkA);background-image:linear-gradient(45deg,var(--chkB) 25%,transparent 25%,transparent 75%,var(--chkB) 75%),linear-gradient(45deg,var(--chkB) 25%,transparent 25%,transparent 75%,var(--chkB) 75%);background-size:24px 24px;background-position:0 0,12px 12px;outline:1px solid #3a3f49}
 .canvas>img{position:absolute;inset:0;width:100%;height:100%}
 .sel{position:absolute;border:2px dashed var(--acc);pointer-events:none}
 .sel i{position:absolute;width:11px;height:11px;background:#fff;border:2px solid var(--acc);border-radius:50%}
@@ -56,7 +56,7 @@ body{width:1500px;height:900px;background:#0c0d10;font:14px/1.4 "Inter","Noto Sa
 .tabs span.on{background:var(--p3);color:var(--text);border:1px solid var(--line);border-bottom:none;position:relative;top:1px}
 .hint{font-size:12px;color:var(--dim)}
 .note{position:absolute;background:#ffd24d;color:#222;font-size:12.5px;padding:5px 9px;border-radius:6px;box-shadow:0 2px 8px #0008;font-weight:600}
-.thumb{background-color:#2a2d33;background-image:linear-gradient(45deg,#33363d 25%,transparent 25%,transparent 75%,#33363d 75%),linear-gradient(45deg,#33363d 25%,transparent 25%,transparent 75%,#33363d 75%);background-size:14px 14px;background-position:0 0,7px 7px;position:relative;overflow:hidden}
+.thumb{background-color:var(--chkA);background-image:linear-gradient(45deg,var(--chkB) 25%,transparent 25%,transparent 75%,var(--chkB) 75%),linear-gradient(45deg,var(--chkB) 25%,transparent 25%,transparent 75%,var(--chkB) 75%);background-size:14px 14px;background-position:0 0,7px 7px;position:relative;overflow:hidden}
 .thumb img{width:100%;height:100%;object-fit:contain;position:absolute;inset:0}
 .acc{border-top:1px solid var(--line)}
 .acc h4{padding:9px 14px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);display:flex;justify-content:space-between}
